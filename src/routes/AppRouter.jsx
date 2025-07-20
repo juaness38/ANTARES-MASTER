@@ -8,29 +8,18 @@ import Events from '../pages/Events'
 import PrivateRoute from './PrivateRoute'
 
 export default function AppRouter() {
-  const isAuthenticated = !!localStorage.getItem('token') // muy básico, puedes mejorarlo con Zustand
+  const isAuthenticated = !!localStorage.getItem('token')
 
   return (
+    
     <Routes>
       <Route path="/" element={<Navigate to="/dashboard" />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
-      <Route
-        path="/dashboard"
-        element={<PrivateRoute> <Dashboard /> </PrivateRoute>}
-      />
-      <Route
-        path="/protocols"
-        element={isAuthenticated ? <Protocols /> : <Navigate to="/login" />}
-      />
-      <Route
-        path="/sensors"
-        element={isAuthenticated ? <Sensors /> : <Navigate to="/login" />}
-      />
-      <Route
-        path="/events"
-        element={isAuthenticated ? <Events /> : <Navigate to="/login" />}
-      />
+      <Route path="/dashboard" element={<Dashboard />} />
+      <Route path="/protocols" element={<Protocols />} />
+      <Route path="/sensors" element={<Sensors />} />
+      <Route path="/events" element={<Events />} />
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>
   )
