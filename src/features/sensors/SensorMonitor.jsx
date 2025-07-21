@@ -8,20 +8,26 @@ export default function SensorMonitor() {
   useEffect(() => {
     clearData()
 
-    const socket = new WebSocket('ws://localhost:8000/ws/sensors')
+    const socket = new WebSocket("ws://localhost:8000/ws/sensors/live");
 
     socket.onmessage = (event) => {
-      const sensorPayload = JSON.parse(event.data)
-      addSensorData(sensorPayload)
-    }
+        const data = JSON.parse(event.data);
+        console.log("Nuevo dato recibido:", data);
 
-    socket.onerror = (error) => {
-      console.error('WebSocket error:', error)
-    }
+        if ("temperatura" in data) {
+            updateTemperatura(data.temperatura);
+        }
+        if ("humedad" in data) {
+            updateHumedad(data.humedad);
+        }
+        if ("co2" in data) {
+            updateCO2(data.co2);
+        }
+        if ("presion" in data) {
+            updatePresion(data.presion);
+        }
+    };
 
-    socket.onclose = () => {
-      console.warn('WebSocket cerrado')
-    }
 
     return () => socket.close()
   }, [])
