@@ -154,7 +154,12 @@ export default function DashboardHome() {
   // Conexión WebSocket
   useEffect(() => {
     const connectWebSocket = () => {
-      const ws = new WebSocket('ws://astroflora-backend-production.up.railway.app/ws/sensors')
+      const baseWsUrl =
+        window.location.protocol === "https:"
+          ? "wss://astroflora-backend-production.up.railway.app"
+          : "ws://localhost:8000";
+
+    const ws = new WebSocket(`${baseWsUrl}/ws/sensors`);
       
       ws.onopen = () => {
         console.log('Conexión WebSocket establecida')
