@@ -2,29 +2,35 @@ import useAuthStore from '../../store/authStore'
 import { useNavigate } from 'react-router-dom'
 import { FiLogOut, FiBell, FiUser, FiSearch, FiSun, FiMoon } from 'react-icons/fi'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useState } from 'react'
-
+import { useState, useEffect } from 'react'
+import { useDarkMode } from '../../store/darkModeStore'
 
 export default function Header() {
-  const { user, fetchUser } = useAuthStore()
+  const { user } = useAuthStore()
   const logout = useAuthStore(state => state.logout)
   const navigate = useNavigate()
-  const [darkMode, setDarkMode] = useState(false)
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+
+  const isDarkMode = useDarkMode(state => state.isDarkMode)
+  const toggleDarkMode = useDarkMode(state => state.toggleDarkMode)
+
+  useEffect(() => {
+    const root = window.document.documentElement
+    if (isDarkMode) {
+      root.classList.add('dark')
+    } else {
+      root.classList.remove('dark')
+    }
+  }, [isDarkMode])
 
   const handleLogout = () => {
     logout()
     navigate('/login', { replace: true })
   }
 
-  const toggleDarkMode = () => {
-    setDarkMode(!darkMode)
-    document.documentElement.classList.toggle('dark')
-  }
-
   return (
-    <motion.header 
-      className="bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 px-6 py-3 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center shadow-sm"
+    <motion.header
+      className="bg-white dark:bg-gray-900 px-6 py-4 flex justify-between items-center shadow-md"
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.4, type: 'spring' }}
@@ -46,10 +52,10 @@ export default function Header() {
         {/* Dark Mode Toggle */}
         <button
           onClick={toggleDarkMode}
-          className="p-2 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200 relative overflow-hidden"
+          className="p-2 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200"
         >
           <AnimatePresence mode="wait">
-            {darkMode ? (
+            {isDarkMode ? (
               <motion.span
                 key="moon"
                 initial={{ opacity: 0, rotate: -30 }}
@@ -62,9 +68,9 @@ export default function Header() {
             ) : (
               <motion.span
                 key="sun"
-                initial={{ opacity: 0, rotate: 30 }}
+                initial={{ opacity: 0, rotate: -30 }}
                 animate={{ opacity: 1, rotate: 0 }}
-                exit={{ opacity: 0, rotate: -30 }}
+                exit={{ opacity: 0, rotate: 30 }}
                 transition={{ duration: 0.2 }}
               >
                 <FiSun className="w-5 h-5" />
@@ -100,15 +106,15 @@ export default function Header() {
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.2 }}
               >
-                <a href="#" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                <a href="#" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
                   Mi perfil
                 </a>
-                <a href="#" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                <a href="#" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
                   Configuración
                 </a>
                 <button
                   onClick={handleLogout}
-                  className="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center space-x-2"
+                  className="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center space-x-2"
                 >
                   <FiLogOut className="w-4 h-4" />
                   <span>Cerrar sesión</span>
