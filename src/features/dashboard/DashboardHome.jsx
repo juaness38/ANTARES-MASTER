@@ -154,7 +154,7 @@ export default function DashboardHome() {
   // Conexión WebSocket
   useEffect(() => {
     const connectWebSocket = () => {
-      const ws = new WebSocket('ws://localhost:8000/ws/sensors')
+      const ws = new WebSocket('ws://astroflora-backend-production.up.railway.app/ws/sensors')
       
       ws.onopen = () => {
         console.log('Conexión WebSocket establecida')

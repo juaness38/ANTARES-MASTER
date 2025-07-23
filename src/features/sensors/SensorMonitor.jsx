@@ -8,7 +8,7 @@ export default function SensorMonitor() {
   useEffect(() => {
     clearData()
 
-    const socket = new WebSocket("ws://localhost:8000/ws/sensors/live");
+    const socket = new WebSocket("ws://astroflora-backend-production.up.railway.app/ws/sensors/live");
 
     socket.onmessage = (event) => {
         const data = JSON.parse(event.data);
