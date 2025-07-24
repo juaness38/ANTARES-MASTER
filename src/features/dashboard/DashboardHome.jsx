@@ -156,7 +156,7 @@ export default function DashboardHome() {
     const connectWebSocket = () => {
       const baseWsUrl =
         window.location.protocol === "https:"
-          ? "wss://astroflora-backend-production.up.railway.app"
+          ? "wss://astroflora-backend-production-6a27.up.railway.app"
           : "ws://localhost:8000";
 
     const ws = new WebSocket(`${baseWsUrl}/ws/sensors`);

@@ -10,7 +10,7 @@ export default function SensorMonitor() {
 
     const baseWsUrl =
     window.location.protocol === "https:"
-      ? "wss://astroflora-backend-production.up.railway.app"
+      ? "wss://astroflora-backend-production-6a27.up.railway.app"
       : "ws://localhost:8000";
 
     const socket = new WebSocket(`${baseWsUrl}/ws/sensors/live`);
