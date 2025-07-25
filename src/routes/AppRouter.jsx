@@ -1,26 +1,55 @@
-import { Routes, Route, Navigate } from 'react-router-dom'
-import Login from '../pages/Login'
-import Register from '../pages/Register'
-import Dashboard from '../pages/Dashboard'
-import Protocols from '../pages/Protocols'
-import Sensors from '../pages/Sensors'
-import Events from '../pages/Events'
-import PrivateRoute from './PrivateRoute'
+import { Routes, Route, Navigate } from 'react-router-dom';
+import Dashboard from '../pages/Dashboard';
+import Protocols from '../pages/Protocols';
+import Sensors from '../pages/Sensors';
+import Events from '../pages/Events';
+import SignInPage from '../pages/SignIn';
+import SignUpPage from '../pages/SignUpPage';
+import ProtectedRoute from '../routes/ProtectedRoute';
 
 export default function AppRouter() {
-  const isAuthenticated = !!localStorage.getItem('token')
-
   return (
-    
     <Routes>
+      <Route path="/sign-in/*" element={<SignInPage routing="path" path="/sign-in" />} />
+      <Route path="/sign-up/*" element={<SignUpPage routing="path" path="/sign-up" />} />
+
       <Route path="/" element={<Navigate to="/dashboard" />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
-      <Route path="/dashboard" element={<Dashboard />} />
-      <Route path="/protocols" element={<Protocols />} />
-      <Route path="/sensors" element={<Sensors />} />
-      <Route path="/events" element={<Events />} />
-      <Route path="*" element={<Navigate to="/" />} />
+
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/protocols"
+        element={
+          <ProtectedRoute>
+            <Protocols />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/sensors"
+        element={
+          <ProtectedRoute>
+            <Sensors />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/events"
+        element={
+          <ProtectedRoute>
+            <Events />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route path="*" element={<Navigate to="/sign-in" />} />
     </Routes>
-  )
+  );
 }
