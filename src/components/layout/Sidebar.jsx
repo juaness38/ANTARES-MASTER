@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import useAuthStore from '../../store/authStore'
-import { NavLink, useLocation } from 'react-router-dom';
-import { FiGrid, FiFileText, FiHardDrive, FiCalendar, FiChevronRight, FiSettings, FiHelpCircle, FiLogOut } from 'react-icons/fi';
+import { NavLink } from 'react-router-dom';
+import { FiGrid, FiFileText, FiHardDrive, FiCalendar, FiChevronRight, FiSettings, FiHelpCircle } from 'react-icons/fi';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const mainLinks = [
@@ -17,18 +16,10 @@ const secondaryLinks = [
 ]
 
 export default function Sidebar() {
-  const { user, fetchUser } = useAuthStore()
   const logout = useAuthStore(state => state.logout)
-  const location = useLocation();
-  const [activeHover, setActiveHover] = useState(null); // Elimina la anotación de tipo
+  const [activeHover, setActiveHover] = useState(null);
   const [isCollapsed, setIsCollapsed] = useState(false);
   
-  const handleLogout = () => {
-    logout()
-    navigate('/login', { replace: true })
-  }
-
-  // Efecto para cerrar el sidebar en móviles
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth < 1024) {
@@ -190,45 +181,6 @@ export default function Sidebar() {
             </motion.li>
           ))}
         </ul>
-      </div>
-
-      {/* Perfil usuario */}
-      <div className="p-4 border-t border-gray-200 dark:border-gray-800">
-        <div className="flex items-center">
-          <div className="relative">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-r from-emerald-400 to-teal-500 flex items-center justify-center text-white font-semibold shadow-lg">
-              {user?.charAt(0)?.toUpperCase()}
-            </div>
-            <span className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 rounded-full border-2 border-white dark:border-gray-900"></span>
-          </div>
-          
-          <AnimatePresence>
-            {!isCollapsed && (
-              <motion.div
-                className="ml-3 overflow-hidden"
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -10 }}
-              >
-                <p className="text-sm font-medium text-gray-800 dark:text-white truncate">{user}</p>
-                {/*<p className="text-xs text-gray-500 dark:text-gray-400">Usuario</p>*/}
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-
-        <AnimatePresence>
-          {!isCollapsed && (
-            <motion.button
-              onClick={handleLogout}
-              className="mt-3 w-full flex items-center px-4 py-2 text-sm rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-              whileHover={{ x: 2 }}
-            >
-              <FiLogOut className="mr-2" />
-              Cerrar sesión
-            </motion.button>
-          )}
-        </AnimatePresence>
       </div>
     </motion.aside>
   )
