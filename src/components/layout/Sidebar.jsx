@@ -16,7 +16,6 @@ const secondaryLinks = [
 ]
 
 export default function Sidebar() {
-  const logout = useAuthStore(state => state.logout)
   const [activeHover, setActiveHover] = useState(null);
   const [isCollapsed, setIsCollapsed] = useState(false);
   
