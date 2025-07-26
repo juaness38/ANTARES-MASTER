@@ -154,12 +154,7 @@ export default function DashboardHome() {
   // Conexión WebSocket
   useEffect(() => {
     const connectWebSocket = () => {
-      const baseWsUrl =
-        window.location.protocol === "https:"
-          ? "wss://astroflora-backend-production-6a27.up.railway.app"
-          : "ws://localhost:8000";
-
-    const ws = new WebSocket(`${baseWsUrl}/ws/sensors`);
+    const ws = new WebSocket(`wss://astroflora-backend-production-6a27.up.railway.app/ws/sensors`);
       
       ws.onopen = () => {
         console.log('Conexión WebSocket establecida')
@@ -171,33 +166,40 @@ export default function DashboardHome() {
       
       ws.onmessage = (event) => {
         try {
-          const data = JSON.parse(event.data)
-          console.log('Datos recibidos:', data)
-          
-          // Determinar estado general basado en todos los sensores
-          let overallStatus = 'normal'
-          const tempStatus = getSensorStatus('temperature', data.temperatura).status
-          const humStatus = getSensorStatus('humidity', data.humedad).status
-          const co2Status = getSensorStatus('co2', data.co2).status
-          const pressStatus = getSensorStatus('pressure', data.presion).status
-          
-          if ([tempStatus, humStatus, co2Status, pressStatus].includes('danger')) {
-            overallStatus = 'danger'
-          } else if ([tempStatus, humStatus, co2Status, pressStatus].includes('warning')) {
-            overallStatus = 'warning'
-          }
-          
+          const payload = JSON.parse(event.data)
+          console.log('Datos recibidos del WebSocket:', payload)
+
+          const d = payload.data
+
+          const temperatura = parseFloat(d.temperatura)
+          const humedad = parseFloat(d.humedad)
+          const co2 = parseFloat(d.co2)
+          const presion = parseFloat(d.presion)
+
+          const tempStatus = getSensorStatus('temperature', temperatura).status
+          const humidStatus = getSensorStatus('humidity', humedad).status
+          const co2Status = getSensorStatus('co2', co2).status
+          const pressureStatus = getSensorStatus('pressure', presion).status
+
+          const allStatuses = [tempStatus, humidStatus, co2Status, pressureStatus]
+          const overallStatus = allStatuses.includes('danger')
+            ? 'danger'
+            : allStatuses.includes('warning')
+            ? 'warning'
+            : 'ok'
+
           setSensorData({
-            temperature: data.temperatura?.toFixed(1) || '--',
-            humidity: data.humedad?.toFixed(1) || '--',
-            co2: data.co2?.toFixed(0) || '--',
-            pressure: data.presion?.toFixed(0) || '--',
+            temperature: !isNaN(temperatura) ? temperatura.toFixed(1) : '--',
+            humidity: !isNaN(humedad) ? humedad.toFixed(1) : '--',
+            co2: !isNaN(co2) ? co2.toFixed(0) : '--',
+            pressure: !isNaN(presion) ? presion.toFixed(1) : '--',
             status: overallStatus
           })
         } catch (err) {
-          console.error('Error procesando datos:', err)
+          console.error('Error procesando datos del WebSocket:', err)
         }
       }
+
       
       ws.onerror = (error) => {
         console.error('Error en WebSocket:', error)
@@ -218,23 +220,7 @@ export default function DashboardHome() {
     }
 
     connectWebSocket()
-    
-    // Cargar datos de protocolos (simulación)
-    const timer = setTimeout(() => {
-      setProtocols([
-        { id: 1, name: 'Protocolo de Calibración', time: 'Hace 2 horas', status: 'completed' },
-        { id: 2, name: 'Revisión de Sensores', time: 'Hace 5 horas', status: 'completed' },
-        { id: 3, name: 'Actualización de Firmware', time: 'Ayer', status: 'pending' }
-      ])
-    }, 1500)
-
-    // Limpieza al desmontar el componente
-    return () => {
-      if (socketRef.current) {
-        socketRef.current.close()
-      }
-      clearTimeout(timer)
-    }
+   
   }, [])
 
   if (loading) return (
@@ -437,122 +423,6 @@ export default function DashboardHome() {
               message={getSensorStatus('pressure', sensorData.pressure).message}
             />
           )}
-        </motion.div>
-      </div>
-
-      {/* Second Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
-        {/* Protocolos */}
-        <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.2 }}
-          className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm hover:shadow-md border border-gray-100 dark:border-gray-700 lg:col-span-2"
-        >
-          <div className="flex justify-between items-center mb-3">
-            <h2 className="text-base sm:text-lg font-bold">Últimos Protocolos</h2>
-            <button className="text-xs sm:text-sm text-emerald-500 hover:text-emerald-600 transition-colors">
-              Ver todos
-            </button>
-          </div>
-          
-          <div className="space-y-3">
-            {protocols.length > 0 ? (
-              protocols.map((protocol) => (
-                <motion.div 
-                  key={protocol.id}
-                  whileHover={{ x: 2 }}
-                  className="flex items-start p-2 sm:p-3 rounded-lg bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-700"
-                >
-                  <div className={`p-1.5 sm:p-2 rounded-lg mr-2 sm:mr-3 ${
-                    protocol.status === 'completed' 
-                      ? 'bg-emerald-100 dark:bg-emerald-900/50 text-emerald-500' 
-                      : 'bg-amber-100 dark:bg-amber-900/50 text-amber-500'
-                  }`}>
-                    <FiClock className="w-3 h-3 sm:w-4 sm:h-4" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-sm sm:text-base font-medium truncate">{protocol.name}</h3>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{protocol.time}</p>
-                  </div>
-                  <span className={`text-xs px-2 py-1 rounded-full ${
-                    protocol.status === 'completed' 
-                      ? 'bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300' 
-                      : 'bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300'
-                  }`}>
-                    {protocol.status === 'completed' ? 'Completado' : 'Pendiente'}
-                  </span>
-                </motion.div>
-              ))
-            ) : (
-              <div className="text-center py-6 sm:py-8">
-                <div className="inline-flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 bg-gray-100 dark:bg-gray-700 rounded-full mb-2 sm:mb-3">
-                  <FiAlertTriangle className="text-gray-400 w-4 h-4 sm:w-5 sm:h-5" />
-                </div>
-                <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">No hay protocolos recientes</p>
-              </div>
-            )}
-          </div>
-        </motion.div>
-
-        {/* Status Panel */}
-        <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.3 }}
-          className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm hover:shadow-md border border-gray-100 dark:border-gray-700"
-        >
-          <h2 className="text-base sm:text-lg font-bold mb-3">Estado del Sistema</h2>
-          
-          <div className="space-y-3 sm:space-y-4">
-            <div className="flex items-center">
-              <div className={`w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full ${
-                isConnected ? 'bg-emerald-500' : 'bg-red-500'
-              } mr-2 sm:mr-3`}></div>
-              <div className="min-w-0">
-                <p className="text-sm sm:text-base font-medium truncate">Conexión WebSocket</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                  {isConnected ? 'Conectado' : 'Desconectado'}
-                </p>
-              </div>
-            </div>
-            
-            <div className="flex items-center">
-              <div className={`w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full ${
-                getStatusColor(sensorData.status)
-              } mr-2 sm:mr-3`}></div>
-              <div className="min-w-0">
-                <p className="text-sm sm:text-base font-medium truncate">Estado Sensores</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                  {sensorData.status === 'normal' ? 'Todos normales' : 
-                   sensorData.status === 'warning' ? 'Advertencia detectada' : 
-                   sensorData.status === 'danger' ? 'Peligro detectado' : 'Cargando...'}
-                </p>
-              </div>
-            </div>
-            
-            <div className="flex items-center">
-              <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-emerald-500 mr-2 sm:mr-3"></div>
-              <div className="min-w-0">
-                <p className="text-sm sm:text-base font-medium truncate">Almacenamiento</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 truncate">85% utilizado</p>
-              </div>
-            </div>
-            
-            <div className="flex items-center">
-              <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-emerald-500 mr-2 sm:mr-3"></div>
-              <div className="min-w-0">
-                <p className="text-sm sm:text-base font-medium truncate">Actualizaciones</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 truncate">Al día</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-gray-200 dark:border-gray-700">
-            <button className="w-full py-1.5 sm:py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg transition-colors text-xs sm:text-sm font-medium">
-              Generar Reporte
-            </button>
-          </div>
         </motion.div>
       </div>
     </div>
