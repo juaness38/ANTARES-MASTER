@@ -1,10 +1,17 @@
 import ProtocolForm from '../features/protocols/ProtocolForm'
+import Sidebar from '../components/layout/Sidebar'
+import Header from '../components/layout/Header'
 
 export default function Protocols() {
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">Protocolos</h1>
-      <ProtocolForm />
+    <div className="flex h-screen">
+      <Sidebar />
+      <div className="flex flex-col flex-1">
+        <Header />
+        <main className="p-6 overflow-auto">
+          <ProtocolForm />
+        </main>
+      </div>
     </div>
   )
 }

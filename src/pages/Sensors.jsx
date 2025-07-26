@@ -1,10 +1,17 @@
 import SensorMonitor from '../features/sensors/SensorMonitor'
+import Sidebar from '../components/layout/Sidebar'
+import Header from '../components/layout/Header'
 
 export default function Sensors() {
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">Sensores en Tiempo Real</h1>
-      <SensorMonitor />
+    <div className="flex h-screen">
+      <Sidebar />
+      <div className="flex flex-col flex-1">
+        <Header />
+        <main className="p-6 overflow-auto">
+          <SensorMonitor />
+        </main>
+      </div>
     </div>
   )
 }
