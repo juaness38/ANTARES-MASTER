@@ -1,5 +1,4 @@
-// src/components/ConnectionError.jsx
-import { FiWifiOff } from "react-icons/fi";
+import { WifiOff } from "lucide-react";
 
 export default function ConnectionError({ isConnected = false, onRetry }) {
   return (
@@ -8,7 +7,7 @@ export default function ConnectionError({ isConnected = false, onRetry }) {
         <p className="font-bold">Error de conexión</p>
         <p className="mt-1">No se pudo conectar al servidor WebSocket</p>
         <div className="flex items-center mt-3 text-sm">
-          <FiWifiOff className="mr-2" />
+          <WifiOff className="mr-2" />
           <span>Estado: {isConnected ? "Conectado" : "Desconectado"}</span>
         </div>
         <button
