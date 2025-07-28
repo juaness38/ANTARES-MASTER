@@ -12,14 +12,34 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 
 const mainLinks = [
-  { to: "/dashboard", label: "Dashboard", icon: <LayoutPanelLeft size="17" /> },
-  { to: "/protocols", label: "Análisis", icon: <ChartColumn size="17" /> },
-  { to: "/sensors", label: "Experimentos", icon: <FlaskConical size="17" /> },
-  { to: "/events", label: "Monitoreo", icon: <Activity size="17" /> },
+  {
+    to: "/dashboard",
+    label: "Dashboard",
+    icon: <LayoutPanelLeft size="17" />,
+  },
+  {
+    to: "/analysis",
+    label: "Análisis",
+    icon: <ChartColumn size="17" />,
+  },
+  {
+    to: "/experiments",
+    label: "Experimentos",
+    icon: <FlaskConical size="17" />,
+  },
+  {
+    to: "/monitoring",
+    label: "Monitoreo",
+    icon: <Activity size="17" />,
+  },
 ];
 
 const secondaryLinks = [
-  { to: "/settings", label: "Configuración", icon: <Settings size="17" /> },
+  {
+    to: "/settings",
+    label: "Configuración",
+    icon: <Settings size="17" />,
+  },
   {
     to: "/help",
     label: "Ayuda",
