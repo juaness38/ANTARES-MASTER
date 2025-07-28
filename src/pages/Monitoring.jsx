@@ -7,7 +7,9 @@ export default function Monitoring() {
       <Sidebar />
       <div className="flex flex-col flex-1">
         <Header />
-        <main className="p-6 overflow-auto"></main>
+        <main className="p-6 overflow-auto">
+          <h1>Página de monitoreo</h1>
+        </main>
       </div>
     </div>
   );
