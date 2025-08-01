@@ -30,7 +30,7 @@ export default function Dashboard() {
       <Sidebar />
       <div className="flex flex-col flex-1">
         <Header onSidebarToggle={toggleCollapsed} />
-        <main className="p-6 overflow-auto">
+        <main className="flex-1 bg-gray-50 dark:bg-gray-900 p-4 transition-all duration-300">
           <DashboardHome />
         </main>
       </div>

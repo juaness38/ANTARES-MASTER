@@ -48,7 +48,7 @@ export default function Header({ onSidebarToggle }) {
           </button>
         )}
 
-        <div className="relative flex-1">
+        <div className="relative flex-1 hidden lg:block">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             <Search size={16} className="text-gray-400 dark:text-gray-500" />
           </div>
@@ -92,7 +92,7 @@ export default function Header({ onSidebarToggle }) {
         </button>
 
         <button
-          className="p-2 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200 relative"
+          className="p-2 mr-1 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200 relative"
           aria-label="Notifications"
         >
           <Bell className="w-5 h-5" />

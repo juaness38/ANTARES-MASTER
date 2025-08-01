@@ -98,7 +98,7 @@ export default function Sidebar() {
                 className="flex items-center"
                 transition={{ duration: 0.1 }}
               >
-                <span className="bg-gradient-to-r from-emerald-500 to-teal-600 p-2 rounded-lg mr-3 shadow-lg">
+                <span className="bg-gradient-to-r from-emerald-500 to-teal-600 p-1 rounded-lg mr-3 shadow-lg">
                   <LayoutPanelLeft className="text-white text-lg" />
                 </span>
                 <h2 className="text-xl font-bold text-gray-800 dark:text-white bg-gradient-to-r from-emerald-600 to-teal-700 bg-clip-text">
@@ -141,7 +141,7 @@ export default function Sidebar() {
                     className={`p-2 rounded-lg ${isCollapsed ? "" : "mr-3"} ${
                       isCollapsed
                         ? "bg-transparent"
-                        : "bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300"
+                        : " dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-medium"
                     }`}
                   >
                     {link.icon}

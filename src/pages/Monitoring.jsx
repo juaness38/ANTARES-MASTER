@@ -9,8 +9,8 @@ export default function Monitoring() {
       <Sidebar />
       <div className="flex flex-col flex-1">
         <Header onSidebarToggle={toggleCollapsed} />
-        <main className="p-6 overflow-auto">
-          <h1>Página de monitoreo</h1>
+        <main className="flex-1 bg-gray-50 dark:bg-gray-900 p-4 transition-all duration-300">
+          <h1 className="text-2xl font-semibold mb-4">Página de monitoreo</h1>
         </main>
       </div>
     </div>
