@@ -4,7 +4,7 @@ import { Send, X, MessageCircle } from "lucide-react";
 export default function ChatPanel() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
   const bottomRef = useRef(null);
 
   const handleSend = () => {
@@ -39,7 +39,7 @@ export default function ChatPanel() {
       )}
 
       {isOpen && (
-        <div className="absolute top-[69px] right-0 w-[420px] h-[calc(100%-69px)] bg-white dark:bg-gray-950 border-l border-gray-200 dark:border-gray-700 shadow-2xl flex flex-col z-20">
+        <div className="fixed bottom-0 right-0 w-full h-full lg:absolute lg:top-[69px] lg:right-0 lg:w-[420px] lg:h-[calc(100%-69px)] bg-white dark:bg-gray-950 z-50 flex flex-col border-t lg:border-t-0 border-gray-200 dark:border-gray-700 shadow-2xl">
           <div className="px-5 py-4 bg-gradient-to-r from-emerald-600/20 to-teal-500/10 dark:from-emerald-500/20 dark:to-teal-500/10 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
             <div>
               <h2 className="text-lg font-semibold text-gray-800 dark:text-white tracking-tight">
