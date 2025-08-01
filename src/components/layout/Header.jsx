@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Bell, Search, Sun, Moon, LayoutPanelLeft } from "lucide-react";
+import { Bell, Sun, Moon, LayoutPanelLeft } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useDarkMode } from "../../store/darkModeStore";
 import {
@@ -10,7 +10,7 @@ import {
   UserButton,
 } from "@clerk/clerk-react";
 
-export default function Header({ onSidebarToggle }) {
+export default function Header({ onSidebarToggle, children }) {
   const isDarkMode = useDarkMode((state) => state.isDarkMode);
   const toggleDarkMode = useDarkMode((state) => state.toggleDarkMode);
   const [isMobile, setIsMobile] = useState(false);
@@ -47,17 +47,7 @@ export default function Header({ onSidebarToggle }) {
             <LayoutPanelLeft className="w-5 h-5" />
           </button>
         )}
-
-        <div className="relative flex-1 hidden lg:block">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <Search size={16} className="text-gray-400 dark:text-gray-500" />
-          </div>
-          <input
-            type="text"
-            className="block w-full pl-10 pr-3 py-2 rounded-xl bg-gray-100 dark:bg-gray-800 border-transparent focus:border-gray-300 dark:focus:border-gray-600 focus:ring-0 text-sm transition-all duration-200"
-            placeholder="Buscar..."
-          />
-        </div>
+        <div className="flex items-center space-x-4">{children}</div>
       </div>
 
       <div className="flex items-center gap-3">
