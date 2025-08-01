@@ -207,7 +207,7 @@ export default function DashboardHome() {
   }, []);
 
   if (loading)
-    return <LoadingSpinner message="Cargando datos ambientales..." />;
+    return <LoadingSpinner message="Cargando datos de los sensores..." />;
 
   if (error)
     return (
