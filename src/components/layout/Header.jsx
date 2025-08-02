@@ -32,7 +32,7 @@ export default function Header({ onSidebarToggle, children }) {
 
   return (
     <motion.header
-      className="z-30 bg-white dark:bg-gray-900 px-6 py-4 flex justify-between items-center shadow-md sticky top-0"
+      className="z-20 bg-white dark:bg-gray-900 px-6 py-4 flex justify-between items-center shadow-md sticky top-0"
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.4, type: "spring" }}

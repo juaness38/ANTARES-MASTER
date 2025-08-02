@@ -58,15 +58,15 @@ export default function Sidebar() {
       {isMobile && !isCollapsed && (
         <div
           onClick={toggleCollapsed}
-          className="fixed inset-0 bg-black/30 backdrop-blur-sm z-40 lg:hidden transition-opacity duration-300"
+          className="fixed inset-0 bg-black/30 backdrop-blur-sm z-30 lg:hidden transition-opacity duration-300"
         />
       )}
 
       {isMobile && (
-        <div className="fixed top-4 left-4 z-50 hidden lg:block">
+        <div className="fixed top-4 left-4 z-30 hidden lg:block">
           <button
             onClick={toggleCollapsed}
-            className="p-2 fixed top-4 left-4 z-50 bg-gray-100 dark:bg-gray-800 rounded-full shadow-md text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all"
+            className="p-2 fixed top-4 left-4 z-30 bg-gray-100 dark:bg-gray-800 rounded-full shadow-md text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all"
           >
             <ChevronRight
               className={`w-5 h-5 transition-transform duration-300 ${
@@ -84,7 +84,7 @@ export default function Sidebar() {
           opacity: isCollapsed && isMobile ? 0 : 1,
         }}
         transition={{ duration: 0.1 }}
-        className={`fixed z-50 top-0 left-0 min-h-screen bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 shadow-xl flex flex-col overflow-hidden transition-all duration-300 lg:static ${
+        className={`fixed z-30 top-0 left-0 min-h-screen bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 shadow-xl flex flex-col overflow-hidden transition-all duration-300 lg:static ${
           isCollapsed && isMobile ? "pointer-events-none" : ""
         }`}
       >
