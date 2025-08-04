@@ -4,17 +4,48 @@ import React, { useState, useCallback, useRef } from 'react';
 import MolecularViewer from '../visualization/MolecularViewer';
 import PhylogeneticTree from '../visualization/PhylogeneticTree';
 import RealTimeMonitor from '../monitoring/RealTimeMonitor';
-import AstroFloraChat from '../chat/AstroFloraChat';
+import EnhancedAstroFloraChat from '../chat/EnhancedAstroFloraChat';
 
 interface EliteControlCenterProps {
   className?: string;
 }
 
 export default function EliteControlCenter({ className = "" }: EliteControlCenterProps) {
-  const [chatWidth, setChatWidth] = useState(350); // Reducido de 400 a 350
+  const [chatWidth, setChatWidth] = useState(350);
   const [isResizing, setIsResizing] = useState(false);
-  const [isChatVisible, setIsChatVisible] = useState(true); // Toggle para el chat
+  const [isChatVisible, setIsChatVisible] = useState(true);
+  
+  // --- ESTADO CENTRALIZADO PARA COMANDOS ---
+  const [pdbId, setPdbId] = useState('1crn'); // PDB ID por defecto
+  const [currentAnalysis, setCurrentAnalysis] = useState('general');
+  
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // --- MANEJADOR DE COMANDOS SCLI ---
+  const handleChatCommand = useCallback((command: any) => {
+    console.log('🤖 Comando SCLI recibido:', command);
+    
+    switch (command.action) {
+      case 'LOAD_PDB':
+        const newPdbId = command.payload.pdbId;
+        setPdbId(newPdbId);
+        console.log(`📊 Cargando estructura PDB: ${newPdbId}`);
+        break;
+        
+      case 'SHOW_FILES':
+        console.log(`📁 Mostrando archivos de tipo: ${command.payload.fileType}`);
+        setCurrentAnalysis(command.payload.fileType);
+        break;
+        
+      case 'EXPORT_DATA':
+        console.log('💾 Iniciando exportación de datos...');
+        // Aquí se podría implementar la lógica de exportación
+        break;
+        
+      default:
+        console.log('❓ Comando no reconocido:', command.action);
+    }
+  }, []);
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     setIsResizing(true);
@@ -232,14 +263,14 @@ export default function EliteControlCenter({ className = "" }: EliteControlCente
         </div>
       )}
 
-      {/* Panel del Chat AstroFlora (lado derecho) - Solo visible si está activo */}
+      {/* Panel del Chat AstroFlora Enhanced (lado derecho) - Solo visible si está activo */}
       {isChatVisible && (
         <div 
           className="bg-gray-900/50 border-l border-gray-700/50 overflow-hidden"
           style={{ width: `${chatWidth}px` }}
         >
           <div className="h-full">
-            <AstroFloraChat />
+            <EnhancedAstroFloraChat onCommand={handleChatCommand} />
           </div>
         </div>
       )}
