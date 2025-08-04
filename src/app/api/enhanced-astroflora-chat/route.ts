@@ -41,11 +41,17 @@ async function sendToDriverAI(message: string) {
       method: 'POST',
       headers: { 
         'Content-Type': 'application/json',
-        'User-Agent': 'AstroFlora-Frontend/1.0.0'
+        'User-Agent': 'AstroFlora-Frontend/1.0.0',
+        'Accept': 'application/json',
+        'Origin': 'https://antares-master-gzl8-k77hna6p6-juaness38s-projects.vercel.app'
       },
       body: JSON.stringify({ 
         query: message,
-        context: { source: 'enhanced_chat' }
+        context: { 
+          source: 'enhanced_chat',
+          timestamp: new Date().toISOString(),
+          user_id: 'frontend_user'
+        }
       }),
       signal: AbortSignal.timeout(30000)
     });
@@ -121,6 +127,16 @@ async function fetchBackendFiles(fileType: string) {
       error: error instanceof Error ? error.message : 'Unknown error' 
     };
   }
+}
+
+// --- DETECCIÓN DE COMANDOS DRIVER ---
+function isDriverCommand(text: string): boolean {
+  const input = text.toLowerCase().trim();
+  const driverKeywords = ['driver', 'pasame', 'muestra', 'dame', 'carga', 'load', 'blast', 'analiza'];
+  
+  return driverKeywords.some(keyword => input.includes(keyword)) ||
+         input.startsWith('driver ') ||
+         input.includes('driver ');
 }
 
 // --- PARSEO DE COMANDOS ---
@@ -231,39 +247,57 @@ export async function POST(req: NextRequest) {
 
     console.log('🔍 Procesando mensaje:', message);
 
-    // 1. Intentar comando driver primero
+    // 1. Detectar si es comando del driver
+    const isDriverMsg = isDriverCommand(message);
+    console.log('🤖 Es comando del driver?', isDriverMsg);
+
+    // 2. Si es comando del driver, intentar MCP Server primero
+    if (isDriverMsg) {
+      const mcpResponse = await sendToDriverAI(message);
+      if (mcpResponse.success) {
+        const chatResponse: ChatResponse = {
+          type: 'chat',
+          message: `🤖 **AstroFlora Driver AI**\n\n${mcpResponse.data.analysis?.result || mcpResponse.data.message || 'Respuesta del Driver AI'}\n\n*Powered by AstroFlora MCP Server*`
+        };
+        return NextResponse.json(chatResponse);
+      }
+      
+      // Si MCP falla, verificar si hay mensaje de fallback específico
+      if (mcpResponse.fallbackMessage) {
+        const chatResponse: ChatResponse = {
+          type: 'chat',
+          message: mcpResponse.fallbackMessage
+        };
+        return NextResponse.json(chatResponse);
+      }
+    }
+
+    // 3. Intentar comando driver tradicional (fallback)
     const commandResponse = await parseDriverCommand(message);
     if (commandResponse) {
-      console.log('✅ Comando reconocido:', commandResponse.action);
+      console.log('✅ Comando fallback reconocido:', commandResponse.action);
       return NextResponse.json(commandResponse);
     }
 
-    // 2. Intentar MCP Server
-    const mcpResponse = await sendToDriverAI(message);
-    if (mcpResponse.success) {
-      const chatResponse: ChatResponse = {
-        type: 'chat',
-        message: `${mcpResponse.data.analysis?.result || 'Respuesta del MCP Server'}\n\n*Powered by AstroFlora MCP Server*`
-      };
-      return NextResponse.json(chatResponse);
+    // 4. Si no es comando del driver, intentar MCP Server para consultas generales
+    if (!isDriverMsg) {
+      const mcpResponse = await sendToDriverAI(message);
+      if (mcpResponse.success) {
+        const chatResponse: ChatResponse = {
+          type: 'chat',
+          message: `${mcpResponse.data.analysis?.result || 'Respuesta del MCP Server'}\n\n*Powered by AstroFlora MCP Server*`
+        };
+        return NextResponse.json(chatResponse);
+      }
     }
 
-    // 3. Si MCP falla, verificar si hay mensaje de fallback específico
-    if (mcpResponse.fallbackMessage) {
-      const chatResponse: ChatResponse = {
-        type: 'chat',
-        message: mcpResponse.fallbackMessage
-      };
-      return NextResponse.json(chatResponse);
-    }
-
-    // 4. Si no hay comando ni MCP, respuesta científica básica
+    // 5. Si todo falla, respuesta científica básica
     console.log('⚠️ Usando respuesta científica básica');
     
     const scientificResponse = generateScientificResponse(message);
     const chatResponse: ChatResponse = {
       type: 'chat',
-      message: scientificResponse
+      message: scientificResponse + (isDriverMsg ? '\n\n🔧 **Nota**: El Driver AI no está disponible. Intenta más tarde.' : '')
     };
     
     return NextResponse.json(chatResponse);

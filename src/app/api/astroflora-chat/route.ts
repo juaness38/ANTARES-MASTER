@@ -10,7 +10,8 @@ const mcpConfig = {
   headers: {
     'Content-Type': 'application/json',
     'User-Agent': 'Astroflora-Frontend/1.0.0',
-    'Origin': 'https://antares-master.vercel.app'
+    'Accept': 'application/json',
+    'Origin': 'https://antares-master-gzl8-k77hna6p6-juaness38s-projects.vercel.app'
   }
 };
 

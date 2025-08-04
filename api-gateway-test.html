@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AstroFlora API Gateway Test</title>
+    <style>
+        body { font-family: monospace; margin: 20px; background: #1a1a1a; color: #00ff00; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .test-result { margin: 10px 0; padding: 10px; border: 1px solid #333; background: #2a2a2a; }
+        .success { border-color: #00ff00; }
+        .error { border-color: #ff0000; color: #ff6666; }
+        .warning { border-color: #ffaa00; color: #ffcc66; }
+        button { padding: 10px 20px; margin: 5px; background: #0066cc; color: white; border: none; cursor: pointer; }
+        button:hover { background: #0088ff; }
+        pre { background: #333; padding: 10px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 AstroFlora API Gateway Test</h1>
+        <p>Prueba la conectividad de tu API Gateway implementado</p>
+        
+        <button onclick="testApiGateway()">🧪 Ejecutar Tests</button>
+        <button onclick="clearResults()">🗑️ Limpiar</button>
+        
+        <div id="results"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'https://qmoyxt3015.execute-api.us-east-1.amazonaws.com/dev';
+        
+        async function testApiGateway() {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '<h2>🔍 Ejecutando tests...</h2>';
+            
+            const tests = [
+                {
+                    name: 'Base API Gateway',
+                    url: API_BASE,
+                    method: 'GET'
+                },
+                {
+                    name: 'Health Endpoint',
+                    url: `${API_BASE}/health`,
+                    method: 'GET'
+                },
+                {
+                    name: 'API v1 Endpoint',
+                    url: `${API_BASE}/api/v1/health`,
+                    method: 'GET'
+                },
+                {
+                    name: 'Driver AI Endpoint',
+                    url: `${API_BASE}/driver-ai/analyze`,
+                    method: 'POST',
+                    body: JSON.stringify({ query: 'test connection' }),
+                    headers: { 'Content-Type': 'application/json' }
+                }
+            ];
+            
+            for (const test of tests) {
+                await runTest(test);
+            }
+            
+            showSummary();
+        }
+        
+        async function runTest(test) {
+            const resultsDiv = document.getElementById('results');
+            
+            try {
+                const startTime = Date.now();
+                
+                const response = await fetch(test.url, {
+                    method: test.method,
+                    headers: test.headers || {},
+                    body: test.body || null
+                });
+                
+                const endTime = Date.now();
+                const responseTime = endTime - startTime;
+                
+                let responseText = '';
+                try {
+                    responseText = await response.text();
+                } catch (e) {
+                    responseText = 'Could not read response body';
+                }
+                
+                const statusClass = response.ok ? 'success' : 
+                                  (response.status >= 500 ? 'warning' : 'error');
+                
+                resultsDiv.innerHTML += `
+                    <div class="test-result ${statusClass}">
+                        <h3>📡 ${test.name}</h3>
+                        <p><strong>URL:</strong> ${test.url}</p>
+                        <p><strong>Method:</strong> ${test.method}</p>
+                        <p><strong>Status:</strong> ${response.status} ${response.statusText}</p>
+                        <p><strong>Response Time:</strong> ${responseTime}ms</p>
+                        <details>
+                            <summary>Response Body</summary>
+                            <pre>${responseText}</pre>
+                        </details>
+                    </div>
+                `;
+                
+            } catch (error) {
+                resultsDiv.innerHTML += `
+                    <div class="test-result error">
+                        <h3>❌ ${test.name}</h3>
+                        <p><strong>URL:</strong> ${test.url}</p>
+                        <p><strong>Error:</strong> ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+        
+        function showSummary() {
+            const resultsDiv = document.getElementById('results');
+            const tests = document.querySelectorAll('.test-result');
+            const successful = document.querySelectorAll('.test-result.success').length;
+            const warnings = document.querySelectorAll('.test-result.warning').length;
+            const errors = document.querySelectorAll('.test-result.error').length;
+            
+            resultsDiv.innerHTML += `
+                <div class="test-result">
+                    <h2>📊 Resumen de Tests</h2>
+                    <p>✅ Exitosos: ${successful}</p>
+                    <p>⚠️ Con advertencias: ${warnings}</p>
+                    <p>❌ Fallidos: ${errors}</p>
+                    
+                    <h3>🔧 Diagnóstico:</h3>
+                    <div id="diagnosis"></div>
+                </div>
+            `;
+            
+            const diagnosisDiv = document.getElementById('diagnosis');
+            
+            if (successful > 0) {
+                diagnosisDiv.innerHTML += '<p style="color: #00ff00;">✅ API Gateway está funcionando!</p>';
+            } else if (warnings > 0) {
+                diagnosisDiv.innerHTML += `
+                    <p style="color: #ffaa00;">⚠️ API Gateway configurado pero backend no responde</p>
+                    <ul>
+                        <li>El API Gateway está correctamente implementado</li>
+                        <li>Necesitas iniciar tu servidor backend</li>
+                        <li>Verifica que Docker esté corriendo en 3.85.5.222</li>
+                    </ul>
+                `;
+            } else {
+                diagnosisDiv.innerHTML += `
+                    <p style="color: #ff6666;">❌ API Gateway necesita configuración</p>
+                    <ul>
+                        <li>Crear métodos HTTP en API Gateway</li>
+                        <li>Configurar integración HTTP</li>
+                        <li>Desplegar a etapa 'dev'</li>
+                    </ul>
+                `;
+            }
+        }
+        
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+    </script>
+</body>
+</html>
