@@ -36,6 +36,7 @@ async function sendToDriverAI(message: string) {
   try {
     console.log(`🚀 Sending to Driver AI: ${MCP_SERVER_URL}/mayahuelin/analyze`);
     console.log(`📤 Message: ${message}`);
+    console.log(`🔧 MCP_SERVER_URL: ${MCP_SERVER_URL}`);
     
     const response = await fetch(`${MCP_SERVER_URL}/mayahuelin/analyze`, {
       method: 'POST',
