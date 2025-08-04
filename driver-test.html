@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Driver AI - AstroFlora</title>
+    <style>
+        body { font-family: 'Courier New', monospace; margin: 20px; background: #0a0a0a; color: #00ff88; }
+        .container { max-width: 900px; margin: 0 auto; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #333; background: #111; border-radius: 8px; }
+        .success { border-color: #00ff88; background: #001a0a; }
+        .error { border-color: #ff3333; background: #1a0000; color: #ff6666; }
+        .warning { border-color: #ffaa00; background: #1a1500; color: #ffcc66; }
+        button { padding: 12px 24px; margin: 8px; background: #0066cc; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; }
+        button:hover { background: #0088ff; }
+        button:disabled { background: #666; cursor: not-allowed; }
+        input[type="text"] { padding: 10px; width: 300px; margin: 5px; background: #222; color: #fff; border: 1px solid #444; border-radius: 4px; }
+        pre { background: #222; padding: 15px; overflow-x: auto; border-radius: 4px; margin: 10px 0; }
+        .loading { color: #ffaa00; }
+        .chat-test { background: #001122; border: 1px solid #0066cc; padding: 20px; margin: 20px 0; border-radius: 8px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 Driver AI Connection Test</h1>
+        <p>Prueba directa de la conexión con el Driver AI de AstroFlora</p>
+        
+        <div class="test-section">
+            <h2>🚀 Test Directo del API Gateway</h2>
+            <button onclick="testDirectAPI()">Probar API Gateway</button>
+            <div id="direct-results"></div>
+        </div>
+
+        <div class="chat-test">
+            <h2>💬 Test del Chat Driver</h2>
+            <input type="text" id="chat-input" placeholder="Escribe: driver pasame los pdb" value="driver pasame los pdb del análisis">
+            <button onclick="testDriverChat()">Enviar al Driver</button>
+            <button onclick="testNormalChat()">Chat Normal</button>
+            <div id="chat-results"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>🔍 Tests Automáticos</h2>
+            <button onclick="runAllTests()">Ejecutar Todos los Tests</button>
+            <div id="auto-results"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'https://qmoyxt3015.execute-api.us-east-1.amazonaws.com/dev';
+        const FRONTEND_API = '/api/enhanced-astroflora-chat';
+
+        async function testDirectAPI() {
+            const results = document.getElementById('direct-results');
+            results.innerHTML = '<div class="loading">🔄 Probando API Gateway directamente...</div>';
+
+            try {
+                const response = await fetch(`${API_BASE}/driver-ai/analyze`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'User-Agent': 'AstroFlora-Test/1.0.0'
+                    },
+                    body: JSON.stringify({
+                        query: 'driver pasame los pdb del análisis',
+                        context: { source: 'direct_test' }
+                    })
+                });
+
+                const responseText = await response.text();
+                let responseData;
+                try {
+                    responseData = JSON.parse(responseText);
+                } catch (e) {
+                    responseData = { raw: responseText };
+                }
+
+                const statusClass = response.ok ? 'success' : (response.status >= 500 ? 'warning' : 'error');
+                
+                results.innerHTML = `
+                    <div class="test-section ${statusClass}">
+                        <h3>📡 Resultado API Gateway Directo</h3>
+                        <p><strong>Status:</strong> ${response.status} ${response.statusText}</p>
+                        <p><strong>URL:</strong> ${API_BASE}/driver-ai/analyze</p>
+                        <pre>${JSON.stringify(responseData, null, 2)}</pre>
+                    </div>
+                `;
+            } catch (error) {
+                results.innerHTML = `
+                    <div class="test-section error">
+                        <h3>❌ Error de Conexión</h3>
+                        <p><strong>Error:</strong> ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        async function testDriverChat() {
+            const input = document.getElementById('chat-input');
+            const results = document.getElementById('chat-results');
+            const message = input.value.trim();
+
+            if (!message) {
+                alert('Escribe un mensaje primero');
+                return;
+            }
+
+            results.innerHTML = '<div class="loading">🔄 Enviando al chat del driver...</div>';
+
+            try {
+                const response = await fetch(FRONTEND_API, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ message })
+                });
+
+                const responseData = await response.json();
+                const statusClass = response.ok ? 'success' : 'error';
+
+                results.innerHTML = `
+                    <div class="test-section ${statusClass}">
+                        <h3>🤖 Respuesta del Chat Driver</h3>
+                        <p><strong>Status:</strong> ${response.status}</p>
+                        <p><strong>Tipo:</strong> ${responseData.type}</p>
+                        <p><strong>Mensaje:</strong></p>
+                        <pre>${responseData.message}</pre>
+                        ${responseData.files ? `<p><strong>Archivos:</strong> ${responseData.files.length}</p>` : ''}
+                    </div>
+                `;
+            } catch (error) {
+                results.innerHTML = `
+                    <div class="test-section error">
+                        <h3>❌ Error del Chat</h3>
+                        <p><strong>Error:</strong> ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        async function testNormalChat() {
+            const results = document.getElementById('chat-results');
+            results.innerHTML = '<div class="loading">🔄 Probando chat normal...</div>';
+
+            try {
+                const response = await fetch(FRONTEND_API, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ message: 'Hola, ¿qué es BLAST?' })
+                });
+
+                const responseData = await response.json();
+                const statusClass = response.ok ? 'success' : 'error';
+
+                results.innerHTML = `
+                    <div class="test-section ${statusClass}">
+                        <h3>💬 Respuesta Chat Normal</h3>
+                        <p><strong>Status:</strong> ${response.status}</p>
+                        <p><strong>Tipo:</strong> ${responseData.type}</p>
+                        <p><strong>Mensaje:</strong></p>
+                        <pre>${responseData.message}</pre>
+                    </div>
+                `;
+            } catch (error) {
+                results.innerHTML = `
+                    <div class="test-section error">
+                        <h3>❌ Error del Chat Normal</h3>
+                        <p><strong>Error:</strong> ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        async function runAllTests() {
+            const results = document.getElementById('auto-results');
+            results.innerHTML = '<div class="loading">🔄 Ejecutando batería completa de tests...</div>';
+
+            const tests = [
+                'driver pasame los pdb',
+                'driver muestra los blast',
+                'load pdb 1crn',
+                'Hola driver',
+                '¿Qué es una proteína?'
+            ];
+
+            let allResults = '';
+
+            for (const testMessage of tests) {
+                try {
+                    const response = await fetch(FRONTEND_API, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ message: testMessage })
+                    });
+
+                    const responseData = await response.json();
+                    const statusClass = response.ok ? 'success' : 'error';
+                    const isDriverResponse = responseData.message && responseData.message.includes('Driver AI');
+
+                    allResults += `
+                        <div class="test-section ${statusClass}">
+                            <h4>📝 "${testMessage}"</h4>
+                            <p><strong>Status:</strong> ${response.status} | <strong>Driver Response:</strong> ${isDriverResponse ? '✅' : '❌'}</p>
+                            <details>
+                                <summary>Ver respuesta</summary>
+                                <pre>${responseData.message.substring(0, 200)}...</pre>
+                            </details>
+                        </div>
+                    `;
+                } catch (error) {
+                    allResults += `
+                        <div class="test-section error">
+                            <h4>❌ "${testMessage}"</h4>
+                            <p><strong>Error:</strong> ${error.message}</p>
+                        </div>
+                    `;
+                }
+            }
+
+            results.innerHTML = allResults;
+        }
+
+        // Auto-ejecutar test básico al cargar
+        window.onload = function() {
+            console.log('🚀 Driver AI Test Page loaded');
+            console.log('API Base:', API_BASE);
+            console.log('Frontend API:', FRONTEND_API);
+        };
+    </script>
+</body>
+</html>
