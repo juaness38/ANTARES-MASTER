@@ -189,11 +189,22 @@ Una vez deployado exitosamente, tendrás:
 - **Solución**: Implementado con dynamic loading SSR-safe
 - **Estado**: ✅ Funcionando con visualización 3D real
 
+#### Error: Function Runtimes (SOLUCIONADO)
+- **Problema**: "Function Runtimes must have a valid version" en Vercel
+- **Solución**: Simplificado vercel.json, Vercel detecta automáticamente las API routes
+- **Estado**: ✅ Deployment funcional
+
 #### AstroFlora Chat MCP Integration (NUEVO)
 - **Funcionalidad**: Chat AI integrado con MCP Server
 - **Configuración**: Conexión a `http://localhost:8080`
 - **Fallback**: OpenAI GPT-4o cuando MCP no disponible
 - **Estado**: ✅ Completamente operacional
+
+#### Panel Redimensionable VS Code Style (NUEVO)
+- **Funcionalidad**: Interfaz split-screen con divisor redimensionable
+- **Configuración**: Chat AstroFlora lado derecho, herramientas lado izquierdo
+- **Interacción**: Usuario puede ajustar ancho del chat arrastrando
+- **Estado**: ✅ Implementado y funcional
 
 ### Error: API Connection
 - Verificar que `NEXT_PUBLIC_API_URL` esté configurado

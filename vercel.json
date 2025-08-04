@@ -1,15 +1,8 @@
 {
   "version": 2,
-  "name": "antares-elite-platform",
   "framework": "nextjs",
   "env": {
     "NEXT_PUBLIC_API_URL": "http://3.85.5.222/api/v1"
-  },
-  "functions": {
-    "src/app/api/**": {
-      "runtime": "nodejs18.x",
-      "maxDuration": 30
-    }
   },
   "regions": ["iad1"]
 }
