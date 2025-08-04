@@ -2,10 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { openai } from '@ai-sdk/openai';
 import { streamText } from 'ai';
 
-// --- CONFIGURACIÓN BACKEND (BYPASS TEMPORAL) ---
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://3.85.5.222:8001';
-const MCP_SERVER_URL = process.env.MCP_SERVER_URL || 'http://3.85.5.222:8001'; // BYPASS temporal directo al servidor
-const API_GATEWAY_URL = process.env.API_GATEWAY_URL || 'http://3.85.5.222:8001'; // BYPASS temporal
+// --- CONFIGURACIÓN BACKEND (RESTORED API GATEWAY) ---
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://qmoyxt3015.execute-api.us-east-1.amazonaws.com/dev';
+const MCP_SERVER_URL = process.env.MCP_SERVER_URL || 'https://qmoyxt3015.execute-api.us-east-1.amazonaws.com/dev'; // Restored to API Gateway
+const API_GATEWAY_URL = process.env.API_GATEWAY_URL || 'https://qmoyxt3015.execute-api.us-east-1.amazonaws.com/dev'; // Restored API Gateway
 
 // --- INTERFACES ---
 interface CommandResponse {
@@ -37,7 +37,7 @@ async function sendToDriverAI(message: string) {
     console.log(`🚀 Sending to Driver AI: ${MCP_SERVER_URL}/driver-ai/analyze`);
     console.log(`📤 Message: ${message}`);
     
-    const response = await fetch(`${MCP_SERVER_URL}/api/mayahuelin/analyze`, {
+    const response = await fetch(`${MCP_SERVER_URL}/mayahuelin/analyze`, {
       method: 'POST',
       headers: { 
         'Content-Type': 'application/json',
