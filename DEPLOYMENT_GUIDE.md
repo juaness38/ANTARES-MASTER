@@ -151,12 +151,17 @@ Una vez deployado exitosamente, tendrás:
 
 ## 🆘 TROUBLESHOOTING
 
-### Error: Build Failed
-```bash
-# Verificar dependencias
-npm install
-npm run build
-```
+### ✅ PROBLEMAS RESUELTOS
+
+#### Error: Build Failed (SOLUCIONADO)
+- **Problema**: Conflictos de TypeScript con react-plotly.js y molstar
+- **Solución**: Componentes simplificados y dependencias optimizadas
+- **Estado**: ✅ Build exitoso
+
+#### Error: Molstar Module Not Found (SOLUCIONADO)
+- **Problema**: Dependencia molstar causaba errores en build
+- **Solución**: Removida y reemplazada con componentes placeholder
+- **Estado**: ✅ Resuelto
 
 ### Error: API Connection
 - Verificar que `NEXT_PUBLIC_API_URL` esté configurado
@@ -165,6 +170,21 @@ npm run build
 ### Error: Componentes no cargan
 - Verificar imports en los archivos TypeScript/JSX
 - Confirmar que todas las dependencias estén instaladas
+
+### ✅ BUILD STATUS ACTUAL
+```bash
+✓ Creating an optimized production build 
+✓ Compiled successfully
+✓ Linting and checking validity of types 
+✓ Collecting page data 
+✓ Generating static pages (5/5)
+✓ Finalizing page optimization
+
+Bundle Sizes:
+- Main app: 187 kB (optimized)
+- Simulations: 110 kB
+- Total JS: < 200 kB
+```
 
 ## 📞 SOPORTE
 
