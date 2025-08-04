@@ -4,6 +4,7 @@ import React from 'react';
 import MolecularViewer from '../visualization/MolecularViewer';
 import PhylogeneticTree from '../visualization/PhylogeneticTree';
 import RealTimeMonitor from '../monitoring/RealTimeMonitor';
+import AstroFloraChat from '../chat/AstroFloraChat';
 
 interface EliteControlCenterProps {
   className?: string;
@@ -38,10 +39,17 @@ export default function EliteControlCenter({ className = "" }: EliteControlCente
         </div>
       </div>
 
-      {/* Grid Principal */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-6">
+      {/* Grid Principal con Chat AstroFlora */}
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-6">
         {/* Monitor en Tiempo Real */}
-        <RealTimeMonitor className="xl:col-span-2" />
+        <div className="xl:col-span-2">
+          <RealTimeMonitor />
+        </div>
+        
+        {/* Chat AstroFlora AI */}
+        <div className="xl:col-span-1">
+          <AstroFloraChat />
+        </div>
       </div>
 
       {/* Grid de Visualizaciones Científicas */}
