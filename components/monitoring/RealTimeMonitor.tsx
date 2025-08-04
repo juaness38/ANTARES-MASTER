@@ -19,9 +19,12 @@ export default function RealTimeMonitor({ className = "" }: RealTimeMonitorProps
   const [metrics, setMetrics] = useState<SystemMetric[]>([]);
   const [isConnected, setIsConnected] = useState(false);
   const [alerts, setAlerts] = useState<string[]>([]);
+  const [isActive, setIsActive] = useState(false); // Control de activación manual
 
-  // Simulación de datos en tiempo real
+  // Simulación de datos en tiempo real - OPTIMIZADO para 2GB
   useEffect(() => {
+    if (!isActive) return; // Solo ejecutar cuando esté activo
+    
     const interval = setInterval(() => {
       const newMetric: SystemMetric = {
         timestamp: new Date().toLocaleTimeString(),
@@ -33,22 +36,52 @@ export default function RealTimeMonitor({ className = "" }: RealTimeMonitorProps
 
       setMetrics(prev => {
         const updated = [...prev, newMetric];
-        return updated.slice(-20); // Mantener solo los últimos 20 puntos
+        return updated.slice(-15); // Reducido de 20 a 15 para ahorrar memoria
       });
 
       // Simulación de conexión
       setIsConnected(Math.random() > 0.1);
 
-      // Generar alertas aleatorias
-      if (newMetric.cpu > 85) {
-        setAlerts(prev => [...prev.slice(-4), `⚠️ CPU alta: ${newMetric.cpu.toFixed(1)}%`]);
+      // Generar alertas críticas solamente (menos frecuentes)
+      if (newMetric.cpu > 90) { // Aumentado umbral de 85 a 90
+        setAlerts(prev => [...prev.slice(-3), `⚠️ CPU crítica: ${newMetric.cpu.toFixed(1)}%`]);
       }
-      if (newMetric.temperature > 50) {
-        setAlerts(prev => [...prev.slice(-4), `🌡️ Temperatura crítica: ${newMetric.temperature.toFixed(1)}°C`]);
+      if (newMetric.temperature > 55) { // Aumentado umbral de 50 a 55
+        setAlerts(prev => [...prev.slice(-3), `🌡️ Temperatura crítica: ${newMetric.temperature.toFixed(1)}°C`]);
       }
-    }, 2000);
+    }, 5000); // Aumentado de 2000ms a 5000ms para reducir carga
 
     return () => clearInterval(interval);
+  }, [isActive]); // Dependencia de isActive
+
+  // Inicializar datos estáticos para mostrar algo al inicio
+  useEffect(() => {
+    // Datos iniciales estáticos para evitar carga innecesaria
+    const initialMetrics: SystemMetric[] = [
+      {
+        timestamp: new Date(Date.now() - 30000).toLocaleTimeString(),
+        cpu: 22.5,
+        memory: 45.3,
+        network: 340,
+        temperature: 42.1
+      },
+      {
+        timestamp: new Date(Date.now() - 15000).toLocaleTimeString(), 
+        cpu: 18.7,
+        memory: 43.1,
+        network: 285,
+        temperature: 41.8
+      },
+      {
+        timestamp: new Date().toLocaleTimeString(),
+        cpu: 25.2,
+        memory: 47.9,
+        network: 412,
+        temperature: 42.5
+      }
+    ];
+    setMetrics(initialMetrics);
+    setIsConnected(true);
   }, []);
 
   const latestMetric = metrics[metrics.length - 1];
@@ -62,8 +95,18 @@ export default function RealTimeMonitor({ className = "" }: RealTimeMonitorProps
           <h3 className="text-lg font-semibold text-green-100">Monitor en Tiempo Real</h3>
         </div>
         <div className="flex space-x-2">
-          <div className="px-3 py-1 bg-green-500/20 rounded-full text-xs text-green-300 border border-green-500/30">
-            Live Stream
+          <button
+            onClick={() => setIsActive(!isActive)}
+            className={`px-3 py-1 rounded-full text-xs border transition-colors ${
+              isActive 
+                ? 'bg-red-500/20 text-red-300 border-red-500/30 hover:bg-red-500/30' 
+                : 'bg-green-500/20 text-green-300 border-green-500/30 hover:bg-green-500/30'
+            }`}
+          >
+            {isActive ? '⏸️ Pausar' : '▶️ Iniciar'} Live
+          </button>
+          <div className="px-3 py-1 bg-blue-500/20 rounded-full text-xs text-blue-300 border border-blue-500/30">
+            {isActive ? 'Live Stream' : 'Pausado'}
           </div>
           <div className="px-3 py-1 bg-blue-500/20 rounded-full text-xs text-blue-300 border border-blue-500/30">
             {isConnected ? 'Connected' : 'Reconnecting...'}
