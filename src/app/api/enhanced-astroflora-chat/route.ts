@@ -34,7 +34,7 @@ interface ChatResponse {
 // --- CONEXIÓN AL MCP SERVER ---
 async function sendToDriverAI(message: string) {
   try {
-    console.log(`🚀 Sending to Driver AI: ${MCP_SERVER_URL}/driver-ai/analyze`);
+    console.log(`🚀 Sending to Driver AI: ${MCP_SERVER_URL}/mayahuelin/analyze`);
     console.log(`📤 Message: ${message}`);
     
     const response = await fetch(`${MCP_SERVER_URL}/mayahuelin/analyze`, {
