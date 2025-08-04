@@ -3,9 +3,11 @@ import { streamText, convertToModelMessages } from 'ai';
 
 export const maxDuration = 30;
 
-// Configuración del cliente MCP
+// Configuración del cliente MCP usando variables de entorno
+const MCP_SERVER_URL = process.env.NEXT_PUBLIC_API_URL || process.env.MCP_SERVER_URL || 'https://qmoyxt3015.execute-api.us-east-1.amazonaws.com/dev';
+
 const mcpConfig = {
-  baseURL: 'https://qmoyxt3015.execute-api.us-east-1.amazonaws.com/dev', // Updated to use API Gateway
+  baseURL: MCP_SERVER_URL,
   timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
@@ -29,8 +31,10 @@ async function sendToDriverAI(message: string, userId: string = 'user123') {
 
   try {
     console.log('🚀 Enviando al MCP Server:', payload);
+    console.log('🔗 URL del MCP Server:', `${mcpConfig.baseURL}/mayahuelin/analyze`);
+    console.log('🌍 Environment variables - NEXT_PUBLIC_API_URL:', process.env.NEXT_PUBLIC_API_URL);
     
-    const response = await fetch(`${mcpConfig.baseURL}/driver-ai/analyze`, {
+    const response = await fetch(`${mcpConfig.baseURL}/mayahuelin/analyze`, {
       method: 'POST',
       headers: mcpConfig.headers,
       body: JSON.stringify(payload)

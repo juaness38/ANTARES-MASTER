@@ -2,7 +2,8 @@
   "version": 2,
   "framework": "nextjs",
   "env": {
-    "NEXT_PUBLIC_API_URL": "https://qmoyxt3015.execute-api.us-east-1.amazonaws.com/dev"
+    "NEXT_PUBLIC_API_URL": "https://qmoyxt3015.execute-api.us-east-1.amazonaws.com/dev",
+    "MCP_SERVER_URL": "https://qmoyxt3015.execute-api.us-east-1.amazonaws.com/dev"
   },
   "regions": ["iad1"],
   "functions": {
