@@ -106,7 +106,7 @@ npm run build
 
 ```javascript
 // Ejemplo de configuración
-const API_BASE = 'http://3.85.5.222/api/v1'
+const API_BASE = 'https://qmoyxt3015.execute-api.us-east-1.amazonaws.com/dev'
 
 // Conexión WebSocket para real-time
 const socket = io(API_BASE)
@@ -116,7 +116,7 @@ socket.on('simulation-update', handleUpdate)
 ## 📋 Variables de Entorno
 
 ```bash
-NEXT_PUBLIC_API_URL=http://3.85.5.222/api/v1
+NEXT_PUBLIC_API_URL=https://qmoyxt3015.execute-api.us-east-1.amazonaws.com/dev
 ```
 
 ## 🆘 Support & Documentation

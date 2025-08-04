@@ -13,7 +13,7 @@ import MolstarPlayer from '../../../../components/visualization/MolstarPlayer';
 import PCAPlot from '../../../../components/visualization/PCAPlot';
 
 // Configuración API
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://qmoyxt3015.execute-api.us-east-1.amazonaws.com/dev';
 
 export default function SimulationDashboard() {
   const { simId } = useParams();
