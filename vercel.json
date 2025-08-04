@@ -4,5 +4,15 @@
   "env": {
     "NEXT_PUBLIC_API_URL": "http://3.85.5.222/api/v1"
   },
-  "regions": ["iad1"]
+  "regions": ["iad1"],
+  "functions": {
+    "src/app/api/**/*.ts": {
+      "maxDuration": 30
+    }
+  },
+  "build": {
+    "env": {
+      "NODE_OPTIONS": "--max-old-space-size=4096"
+    }
+  }
 }
