@@ -11,8 +11,9 @@ interface EliteControlCenterProps {
 }
 
 export default function EliteControlCenter({ className = "" }: EliteControlCenterProps) {
-  const [chatWidth, setChatWidth] = useState(400); // Ancho inicial del chat en px
+  const [chatWidth, setChatWidth] = useState(350); // Reducido de 400 a 350
   const [isResizing, setIsResizing] = useState(false);
+  const [isChatVisible, setIsChatVisible] = useState(true); // Toggle para el chat
   const containerRef = useRef<HTMLDivElement>(null);
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
@@ -26,9 +27,9 @@ export default function EliteControlCenter({ className = "" }: EliteControlCente
     const containerRect = containerRef.current.getBoundingClientRect();
     const newWidth = containerRect.right - e.clientX;
     
-    // Límites: mínimo 300px, máximo 70% del contenedor
-    const minWidth = 300;
-    const maxWidth = containerRect.width * 0.7;
+    // Límites: mínimo 280px, máximo 60% del contenedor (reducido)
+    const minWidth = 280;
+    const maxWidth = containerRect.width * 0.6;
     
     setChatWidth(Math.max(minWidth, Math.min(maxWidth, newWidth)));
   }, [isResizing]);
@@ -56,12 +57,14 @@ export default function EliteControlCenter({ className = "" }: EliteControlCente
   return (
     <div 
       ref={containerRef}
-      className={`min-h-screen bg-gradient-to-br from-black via-gray-900 to-blue-900 flex ${className}`}
+      className={`min-h-screen bg-gradient-to-br from-black via-gray-900 to-blue-900 ${
+        isChatVisible ? 'flex' : 'block'
+      } ${className}`}
     >
       {/* Panel Principal de Herramientas Científicas */}
       <div 
-        className="flex-1 p-6 overflow-auto"
-        style={{ width: `calc(100% - ${chatWidth}px)` }}
+        className={`${isChatVisible ? 'flex-1' : 'w-full'} p-6 overflow-auto`}
+        style={isChatVisible ? { width: `calc(100% - ${chatWidth}px)` } : {}}
       >
         {/* Header Elite */}
         <div className="mb-8">
@@ -78,6 +81,15 @@ export default function EliteControlCenter({ className = "" }: EliteControlCente
               </div>
             </div>
             <div className="flex space-x-3">
+              {/* Toggle Chat Button */}
+              <button
+                onClick={() => setIsChatVisible(!isChatVisible)}
+                className="px-4 py-2 bg-blue-500/20 rounded-xl text-blue-300 border border-blue-500/30 hover:bg-blue-500/30 transition-colors flex items-center space-x-2"
+              >
+                <span className="text-sm font-medium">
+                  {isChatVisible ? '🗨️ Ocultar Chat' : '🗨️ Mostrar Chat'}
+                </span>
+              </button>
               <div className="px-4 py-2 bg-green-500/20 rounded-xl text-green-300 border border-green-500/30 flex items-center space-x-2">
                 <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
                 <span className="text-sm font-medium">Online</span>
@@ -206,28 +218,32 @@ export default function EliteControlCenter({ className = "" }: EliteControlCente
         </div>
       </div>
 
-      {/* Divisor Redimensionable */}
-      <div 
-        className={`w-1 bg-gray-600/50 cursor-col-resize hover:bg-blue-500/50 transition-colors relative group ${
-          isResizing ? 'bg-blue-500' : ''
-        }`}
-        onMouseDown={handleMouseDown}
-      >
-        {/* Indicador visual del divisor */}
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="w-0.5 h-8 bg-gray-400/30 group-hover:bg-blue-400/50 rounded-full transition-colors"></div>
+      {/* Divisor Redimensionable - Solo visible si el chat está activo */}
+      {isChatVisible && (
+        <div 
+          className={`w-1 bg-gray-600/50 cursor-col-resize hover:bg-blue-500/50 transition-colors relative group ${
+            isResizing ? 'bg-blue-500' : ''
+          }`}
+          onMouseDown={handleMouseDown}
+        >
+          {/* Indicador visual del divisor */}
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="w-0.5 h-8 bg-gray-400/30 group-hover:bg-blue-400/50 rounded-full transition-colors"></div>
+          </div>
         </div>
-      </div>
+      )}
 
-      {/* Panel del Chat AstroFlora (lado derecho) */}
-      <div 
-        className="bg-gray-900/50 border-l border-gray-700/50 overflow-hidden"
-        style={{ width: `${chatWidth}px` }}
-      >
-        <div className="h-full">
-          <AstroFloraChat />
+      {/* Panel del Chat AstroFlora (lado derecho) - Solo visible si está activo */}
+      {isChatVisible && (
+        <div 
+          className="bg-gray-900/50 border-l border-gray-700/50 overflow-hidden"
+          style={{ width: `${chatWidth}px` }}
+        >
+          <div className="h-full">
+            <AstroFloraChat />
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
