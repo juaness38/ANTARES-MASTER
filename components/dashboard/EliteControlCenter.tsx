@@ -64,7 +64,6 @@ export default function EliteControlCenter({ className = "" }: EliteControlCente
       {/* Panel Principal de Herramientas Científicas */}
       <div 
         className={`${isChatVisible ? 'flex-1' : 'w-full'} p-6 overflow-auto`}
-        style={isChatVisible ? { width: `calc(100% - ${chatWidth}px)` } : {}}
       >
         {/* Header Elite */}
         <div className="mb-8">
