@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   env: {
-    NEXT_PUBLIC_API_URL: 'https://qmoyxt3015.execute-api.us-east-1.amazonaws.com/dev',
+    NEXT_PUBLIC_API_URL: 'https://qmoyxt3015.execute-api.us-east-1.amazonaws.com/dev/api/v1',
   },
   poweredByHeader: false,
   // Configuración específica para Molstar y Vercel

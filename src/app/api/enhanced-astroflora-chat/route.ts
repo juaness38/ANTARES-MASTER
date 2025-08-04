@@ -3,9 +3,9 @@ import { openai } from '@ai-sdk/openai';
 import { streamText } from 'ai';
 
 // --- CONFIGURACIÓN BACKEND ---
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://qmoyxt3015.execute-api.us-east-1.amazonaws.com/dev';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://qmoyxt3015.execute-api.us-east-1.amazonaws.com/dev/api/v1';
 const MCP_SERVER_URL = process.env.MCP_SERVER_URL || 'http://localhost:8080';
-const API_GATEWAY_URL = process.env.API_GATEWAY_URL || 'https://qmoyxt3015.execute-api.us-east-1.amazonaws.com/dev'; // Updated to use new API Gateway
+const API_GATEWAY_URL = process.env.API_GATEWAY_URL || 'https://qmoyxt3015.execute-api.us-east-1.amazonaws.com/dev/api/v1'; // Updated to use new API Gateway
 
 // --- INTERFACES ---
 interface CommandResponse {
@@ -58,7 +58,11 @@ async function sendToDriverAI(message: string) {
 async function fetchBackendFiles(fileType: string) {
   try {
     const response = await fetch(`${API_BASE_URL}/files?type=${fileType}`, {
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        'User-Agent': 'AstroFlora-Frontend/1.0.0',
+        'Accept': 'application/json'
+      },
       signal: AbortSignal.timeout(15000)
     });
     
@@ -66,9 +70,20 @@ async function fetchBackendFiles(fileType: string) {
       const data = await response.json();
       return { success: true, files: data.files || [] };
     }
-    throw new Error(`Backend API error: ${response.status}`);
+    
+    // Log the error for debugging
+    console.error(`Backend API error: ${response.status} - ${response.statusText}`);
+    const errorText = await response.text();
+    console.error('Error response:', errorText);
+    
+    throw new Error(`Backend API error: ${response.status} - ${errorText}`);
   } catch (error) {
-    return { success: false, files: [] };
+    console.error('fetchBackendFiles error:', error);
+    return { 
+      success: false, 
+      files: [], 
+      error: error instanceof Error ? error.message : 'Unknown error' 
+    };
   }
 }
 
