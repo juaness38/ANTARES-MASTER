@@ -2,21 +2,21 @@
 // =======================================
 // Panel de control interactivo para análisis molecular
 
-import { useRouter } from 'next/router';
+'use client';
+
+import { useParams } from 'next/navigation';
 import { useState, useEffect, useCallback } from 'react';
-import Head from 'next/head';
 import axios from 'axios';
 
 // Componentes de visualización
-import MolstarPlayer from '../../components/visualization/MolstarPlayer';
-import PCAPlot from '../../components/visualization/PCAPlot';
+import MolstarPlayer from '../../../../components/visualization/MolstarPlayer';
+import PCAPlot from '../../../../components/visualization/PCAPlot';
 
 // Configuración API
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api';
 
 export default function SimulationDashboard() {
-  const router = useRouter();
-  const { simId } = router.query;
+  const { simId } = useParams();
 
   // Estados principales
   const [analysisStatus, setAnalysisStatus] = useState('idle'); // idle, running, completed, error
