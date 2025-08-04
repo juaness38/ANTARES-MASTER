@@ -5,7 +5,7 @@ export const maxDuration = 30;
 
 // Configuración del cliente MCP
 const mcpConfig = {
-  baseURL: 'http://localhost:8080', // MCP Server ya operacional
+  baseURL: 'https://qmoyxt3015.execute-api.us-east-1.amazonaws.com/dev', // Updated to use API Gateway
   timeout: 30000,
   headers: {
     'Content-Type': 'application/json',

@@ -4,7 +4,7 @@ import { streamText } from 'ai';
 
 // --- CONFIGURACIÓN BACKEND ---
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://qmoyxt3015.execute-api.us-east-1.amazonaws.com/dev/api/v1';
-const MCP_SERVER_URL = process.env.MCP_SERVER_URL || 'http://localhost:8080';
+const MCP_SERVER_URL = process.env.MCP_SERVER_URL || 'https://qmoyxt3015.execute-api.us-east-1.amazonaws.com/dev'; // Updated to use API Gateway
 const API_GATEWAY_URL = process.env.API_GATEWAY_URL || 'https://qmoyxt3015.execute-api.us-east-1.amazonaws.com/dev/api/v1'; // Updated to use new API Gateway
 
 // --- INTERFACES ---
@@ -34,9 +34,15 @@ interface ChatResponse {
 // --- CONEXIÓN AL MCP SERVER ---
 async function sendToDriverAI(message: string) {
   try {
+    console.log(`🚀 Sending to Driver AI: ${MCP_SERVER_URL}/driver-ai/analyze`);
+    console.log(`📤 Message: ${message}`);
+    
     const response = await fetch(`${MCP_SERVER_URL}/driver-ai/analyze`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        'User-Agent': 'AstroFlora-Frontend/1.0.0'
+      },
       body: JSON.stringify({ 
         query: message,
         context: { source: 'enhanced_chat' }
@@ -44,13 +50,43 @@ async function sendToDriverAI(message: string) {
       signal: AbortSignal.timeout(30000)
     });
 
+    console.log(`📡 Response status: ${response.status}`);
+    
     if (response.ok) {
       const result = await response.json();
+      console.log(`✅ Driver AI success:`, result);
       return { success: true, data: result };
     }
-    throw new Error(`MCP Server error: ${response.status}`);
+    
+    const errorText = await response.text();
+    console.error(`❌ MCP Server error: ${response.status} - ${errorText}`);
+    throw new Error(`MCP Server error: ${response.status} - ${errorText}`);
   } catch (error) {
-    return { success: false, error: String(error) };
+    console.error(`💥 Driver AI connection error:`, error);
+    
+    // FALLBACK: Provide helpful error message with backend status
+    return { 
+      success: false, 
+      error: String(error),
+      fallbackMessage: `🚨 **Backend Status: Desconectado**
+      
+El backend de AstroFlora (${MCP_SERVER_URL}) no está disponible actualmente.
+
+**Posibles causas:**
+• 🔌 Instancia de Lightsail apagada o con problemas
+• 🌐 Error de conectividad del API Gateway
+• ⚙️ Servicios backend no iniciados
+
+**Comandos disponibles en modo demo:**
+• \`driver pasame los pdb\` - Ver archivos PDB de demostración
+• \`load pdb 1crn\` - Cargar estructura proteica
+• \`blast\` - Información sobre análisis BLAST
+
+**Para restaurar conectividad:**
+1. Verificar instancia de Lightsail
+2. Reiniciar servicios Docker
+3. Comprobar configuración del API Gateway`
+    };
   }
 }
 
@@ -212,7 +248,16 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(chatResponse);
     }
 
-    // 3. Si no hay comando ni MCP, respuesta científica básica
+    // 3. Si MCP falla, verificar si hay mensaje de fallback específico
+    if (mcpResponse.fallbackMessage) {
+      const chatResponse: ChatResponse = {
+        type: 'chat',
+        message: mcpResponse.fallbackMessage
+      };
+      return NextResponse.json(chatResponse);
+    }
+
+    // 4. Si no hay comando ni MCP, respuesta científica básica
     console.log('⚠️ Usando respuesta científica básica');
     
     const scientificResponse = generateScientificResponse(message);
