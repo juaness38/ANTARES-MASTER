@@ -83,9 +83,8 @@ const CustomNode = ({ data, id }) => {
       style={{
         backgroundColor: data.bgColor,
         border: `2px solid ${data.color}`,
-        color: "#222",
       }}
-      className="rounded-md px-3 py-1.5 shadow-sm relative select-none font-semibold text-sm group"
+      className="text-gray-700 dark:text-gray-100 rounded-md px-3 py-1.5 shadow-sm relative select-none font-semibold text-sm group"
     >
       <Handle
         type="target"
@@ -99,7 +98,7 @@ const CustomNode = ({ data, id }) => {
           onClick={() => data.onDelete(id)}
           aria-label="Eliminar nodo"
           title="Eliminar nodo"
-          className="ml-0 opacity-0 group-hover:opacity-100 transition-opacity text-gray-600 hover:text-red-500"
+          className="ml-0 opacity-0 group-hover:opacity-100 transition-opacity text-red-300 hover:text-red-500"
         >
           <X size={14} />
         </button>
@@ -186,8 +185,8 @@ export default function PipelineEditor() {
   };
 
   return (
-    <div className="flex h-screen w-full bg-gray-50 dark:bg-gray-900 overflow-hidden">
-      <aside className="w-74 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-y-auto max-h-screen border border-gray-200 dark:border-gray-700">
+    <div className="flex h-full w-full overflow-hidden bg-gray-50 dark:bg-gray-900">
+      <aside className="w-72 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 overflow-y-auto max-h-full min-h-0">
         <h2 className="text-2xl font-semibold mb-5 text-gray-900 dark:text-gray-100 tracking-tight select-none">
           Componentes
         </h2>
@@ -276,12 +275,6 @@ export default function PipelineEditor() {
           onDragOver={onDragOver}
           style={{ width: "100%", height: "100%" }}
         >
-          <MiniMap
-            nodeStrokeColor={(n) => n.data.color || "#999"}
-            nodeColor={(n) => n.data.bgColor || "rgba(136,136,136,0.15)"}
-            nodeBorderRadius={10}
-          />
-          <Controls />
           <Background gap={16} />
         </ReactFlow>
       </main>

@@ -30,7 +30,7 @@ export default function ChatPanel() {
   return (
     <>
       {!isOpen && (
-        <div className="fixed bottom-6 right-6 z-50 flex flex-col items-center gap-3">
+        <div className="fixed bottom-36 right-20 z-50 flex flex-col items-center gap-3">
           <motion.div
             initial={{ opacity: 0, y: 12, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
