@@ -1,6 +1,7 @@
 import { X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import PipelineEditor from "../../components/Pipeline/PipelineEditor";
+import ChatPanel from "../../components/chat/ChatPanel";
 
 export default function Modal({ isOpen, onClose, title, onSubmit }) {
   return (
@@ -38,6 +39,7 @@ export default function Modal({ isOpen, onClose, title, onSubmit }) {
               <div className="w-full h-full min-h-0 rounded-lg border border-gray-200 dark:border-gray-700 shadow-inner">
                 <PipelineEditor />
               </div>
+              <ChatPanel />
             </div>
 
             {/* Footer */}

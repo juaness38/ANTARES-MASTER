@@ -1,6 +1,5 @@
 import Sidebar from "../components/layout/Sidebar";
 import Header from "../components/layout/Header";
-import ChatPanel from "../components/chat/ChatPanel";
 import { useState } from "react";
 import useSidebarStore from "../store/sidebarStore";
 import { Plus, Share2, Download, ChevronDown } from "lucide-react";
@@ -74,7 +73,6 @@ export default function Experiments() {
             Página de experimentos
           </h1>
         </main>
-        <ChatPanel />
       </div>
     </div>
   );
