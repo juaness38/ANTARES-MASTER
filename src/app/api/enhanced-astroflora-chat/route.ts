@@ -1,6 +1,65 @@
-import { NextRequest, NextResponse } from 'next/server';
 import { openai } from '@ai-sdk/openai';
-import { streamText } from 'ai';
+import { streamText, UIMessage, convertToModelMessages } from 'ai';
+
+// Allow streaming responses up to 30 seconds
+export const maxDuration = 30;
+
+export async function POST(req: Request) {
+  console.log('🚀 AstroFlora Chat API route called');
+  const { messages }: { messages: UIMessage[] } = await req.json();
+  console.log('📨 Messages received:', messages.length);
+
+  try {
+    console.log('🤖 Starting streamText...');
+    const result = streamText({
+      model: openai('gpt-4o'),
+      messages: convertToModelMessages(messages),
+      system: `You are AstroFlora AI, a plant biology expert specialized in:
+
+🎯 EXPERTISE AREAS:
+- Molecular biology and genetics
+- Plant physiology and biochemistry  
+- Bioinformatics and computational biology
+- Environmental monitoring and agriculture
+- Biotechnology and genetic engineering
+- Phylogenetics and evolution
+- Drug discovery from natural products
+
+🧬 BEHAVIOR:
+- Provide scientifically accurate information
+- Use technical terms when appropriate but explain them clearly
+- Reference current research when relevant
+- Be helpful and encouraging about biological sciences
+- Use emojis sparingly but effectively for visual appeal
+
+Always maintain your scientific expertise while being conversational and accessible.`,
+      temperature: 0.7,
+    });
+
+    console.log('📤 Returning stream response...');
+    return result.toUIMessageStreamResponse();
+  } catch (error) {
+    console.error('❌ Error:', error);
+    console.error('Error details:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+    });
+    
+    // Fallback without streaming
+    const result = streamText({
+      model: openai('gpt-4o'),
+      messages: convertToModelMessages(messages),
+      system: `You are AstroFlora AI, an advanced biological intelligence assistant specializing in plant biology, genetics, biotechnology, environmental monitoring, and agricultural sciences.
+
+Note: Advanced tools are currently unavailable. You can still provide general biological expertise and advice.
+
+Always be helpful, accurate, and maintain your biology and environmental expertise focus.`,
+      temperature: 0.7,
+    });
+
+    return result.toUIMessageStreamResponse();
+  }
+}
 
 // --- CONFIGURACIÓN BACKEND (RESTORED API GATEWAY) ---
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://qmoyxt3015.execute-api.us-east-1.amazonaws.com/dev';
@@ -256,9 +315,13 @@ export async function POST(req: NextRequest) {
     if (isDriverMsg) {
       const mcpResponse = await sendToDriverAI(message);
       if (mcpResponse.success) {
+        // Formatear respuesta científica del backend
+        const data = mcpResponse.data;
+        const analysisResult = formatScientificResponse(data);
+        
         const chatResponse: ChatResponse = {
           type: 'chat',
-          message: `🤖 **AstroFlora Driver AI**\n\n${mcpResponse.data.analysis?.result || mcpResponse.data.message || 'Respuesta del Driver AI'}\n\n*Powered by AstroFlora MCP Server*`
+          message: `🤖 **AstroFlora Driver AI**\n\n${analysisResult}\n\n*Analysis ID: ${data.analysis_id}*\n*Powered by AstroFlora MCP Server*`
         };
         return NextResponse.json(chatResponse);
       }
@@ -280,13 +343,56 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(commandResponse);
     }
 
-    // 4. Si no es comando del driver, intentar MCP Server para consultas generales
+    // 4. Si no es comando del driver, usar OpenAI directamente como ChatGPT
     if (!isDriverMsg) {
-      const mcpResponse = await sendToDriverAI(message);
-      if (mcpResponse.success) {
+      console.log('💬 Usando OpenAI Chat directo...');
+      
+      try {
+        const result = await streamText({
+          model: openai('gpt-4o-mini'),
+          messages: [
+            {
+              role: 'system',
+              content: `Eres AstroFlora Driver AI, un asistente científico especializado en biología molecular, bioinformática y análisis de datos científicos. 
+              
+Responde de manera conversacional y directa como ChatGPT, pero con expertise científico en:
+- Análisis de secuencias de ADN/ARN/proteínas
+- Estructuras moleculares y PDB
+- Bioinformática y herramientas como BLAST
+- Genómica y proteómica
+- Análisis filogenético
+- Modelado molecular
+
+Mantén un tono científico pero accesible. Si te preguntan sobre comandos específicos del driver, menciona que puedes usar "driver pasame los pdb" para obtener datos del backend.`
+            },
+            {
+              role: 'user',
+              content: message
+            }
+          ],
+          temperature: 0.7,
+        });
+
+        // Convertir el stream a texto
+        let fullResponse = '';
+        for await (const chunk of result.textStream) {
+          fullResponse += chunk;
+        }
+
         const chatResponse: ChatResponse = {
           type: 'chat',
-          message: `${mcpResponse.data.analysis?.result || 'Respuesta del MCP Server'}\n\n*Powered by AstroFlora MCP Server*`
+          message: `🤖 **AstroFlora Driver AI**\n\n${fullResponse}\n\n*Powered by OpenAI GPT-4*`
+        };
+        return NextResponse.json(chatResponse);
+        
+      } catch (error) {
+        console.error('❌ OpenAI Error:', error);
+        // Fallback a respuesta científica básica si no hay OpenAI disponible
+        console.log('⚠️ OpenAI no disponible, usando respuesta científica básica');
+        const fallbackResponse = generateScientificResponse(message);
+        const chatResponse: ChatResponse = {
+          type: 'chat',
+          message: `🤖 **AstroFlora Driver AI** *(Modo Local)*\n\n${fallbackResponse}\n\n*Nota: Para chat completo, configura OPENAI_API_KEY*`
         };
         return NextResponse.json(chatResponse);
       }
@@ -387,4 +493,66 @@ Especializado en biología molecular y bioinformática.
 🌱 Biología molecular
 
 *El backend MCP está configurándose. Usando modo demo.*`;
+}
+
+// --- FORMATEADOR DE RESPUESTA CIENTÍFICA ---
+function formatScientificResponse(data: any): string {
+  if (!data || !data.results) {
+    return 'Análisis completado - Datos no disponibles';
+  }
+
+  const { results, recommendations, quality_metrics } = data;
+  
+  let response = `📊 **Análisis Científico Completado**\n\n`;
+  
+  // Análisis de secuencia
+  if (results.sequence_analysis) {
+    const seq = results.sequence_analysis;
+    response += `🧬 **Análisis de Secuencia:**\n`;
+    response += `• Validación de longitud: ${seq.length_validation}\n`;
+    response += `• Análisis de composición: ${seq.composition_analysis}\n`;
+    response += `• Búsqueda de homología: ${seq.homology_search}\n`;
+    response += `• Predicción de dominio: ${seq.domain_prediction}\n`;
+    response += `• Péptido señal: ${seq.signal_peptide}\n\n`;
+  }
+  
+  // Predicción estructural
+  if (results.structural_prediction) {
+    const struct = results.structural_prediction;
+    response += `🔬 **Predicción Estructural:**\n`;
+    response += `• Nivel de confianza: ${struct.confidence_level}\n`;
+    response += `• Clasificación de pliegue: ${struct.fold_classification}\n`;
+    response += `• Sitio activo: ${struct.active_site_prediction}\n`;
+    response += `• Puntuación de estabilidad: ${struct.stability_score}\n`;
+    response += `• Confianza AlphaFold: ${struct.alphafold_confidence}\n\n`;
+  }
+  
+  // Predicción funcional
+  if (results.functional_prediction) {
+    const func = results.functional_prediction;
+    response += `⚡ **Predicción Funcional:**\n`;
+    response += `• Defensa contra patógenos: ${(func.pathogen_defense_likelihood * 100).toFixed(1)}%\n`;
+    response += `• Actividad enzimática: ${func.enzymatic_activity}\n`;
+    response += `• Localización celular: ${func.cellular_localization}\n`;
+    response += `• Respuesta al estrés: ${(func.stress_responsiveness * 100).toFixed(1)}%\n\n`;
+  }
+  
+  // Recomendaciones
+  if (recommendations && recommendations.length > 0) {
+    response += `💡 **Recomendaciones:**\n`;
+    recommendations.slice(0, 3).forEach((rec: string, i: number) => {
+      response += `${i + 1}. ${rec}\n`;
+    });
+    response += `\n`;
+  }
+  
+  // Métricas de calidad
+  if (quality_metrics) {
+    response += `📈 **Métricas de Calidad:**\n`;
+    response += `• Completitud: ${(quality_metrics.data_completeness * 100).toFixed(1)}%\n`;
+    response += `• Confianza: ${(quality_metrics.analysis_confidence * 100).toFixed(1)}%\n`;
+    response += `• Reproducibilidad: ${(quality_metrics.reproducibility_score * 100).toFixed(1)}%\n`;
+  }
+  
+  return response;
 }

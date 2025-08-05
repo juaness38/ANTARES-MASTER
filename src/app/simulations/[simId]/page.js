@@ -8,12 +8,37 @@ import { useParams } from 'next/navigation';
 import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 
-// Componentes de visualización
-import MolstarPlayer from '../../../../components/visualization/MolstarPlayer';
-import PCAPlot from '../../../../components/visualization/PCAPlot';
+// Componentes de visualización - usando componentes simples por ahora
+// import MolstarPlayer from '../../../../components/visualization/MolstarPlayer';
+// import PCAPlot from '../../../../components/visualization/PCAPlot';
 
 // Configuración API
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://qmoyxt3015.execute-api.us-east-1.amazonaws.com/dev/api/v1';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://qmoyxt3015.execute-api.us-east-1.amazonaws.com/dev';
+
+// Componentes temporales simples
+const MolstarPlayer = ({ topologyUrl, trajectoryUrl, frameToShow, onFrameChange, height, showControls }) => (
+  <div className="bg-gray-100 rounded-lg p-8 text-center" style={{ height: height || 500 }}>
+    <div className="text-gray-600">
+      <div className="text-4xl mb-4">🧬</div>
+      <h3 className="text-lg font-semibold mb-2">Visualizador Molecular 3D</h3>
+      <p className="text-sm">Frame actual: {frameToShow || 0}</p>
+      <p className="text-xs mt-2">Topología: {topologyUrl ? '✅ Cargada' : '❌ No disponible'}</p>
+      <p className="text-xs">Trayectoria: {trajectoryUrl ? '✅ Cargada' : '❌ No disponible'}</p>
+    </div>
+  </div>
+);
+
+const PCAPlot = ({ data, onPointClick, selectedFrame, height, showLegend, colorBy, title }) => (
+  <div className="bg-gray-100 rounded-lg p-8 text-center" style={{ height: height || 500 }}>
+    <div className="text-gray-600">
+      <div className="text-4xl mb-4">📊</div>
+      <h3 className="text-lg font-semibold mb-2">{title || 'Análisis PCA'}</h3>
+      <p className="text-sm">Datos: {data?.length || 0} puntos</p>
+      <p className="text-sm">Frame seleccionado: {selectedFrame || 0}</p>
+      <p className="text-xs mt-2">Color por: {colorBy || 'cluster'}</p>
+    </div>
+  </div>
+);
 
 export default function SimulationDashboard() {
   const { simId } = useParams();
@@ -179,15 +204,9 @@ export default function SimulationDashboard() {
     : null;
 
   return (
-    <>
-      <Head>
-        <title>Astroflora 7.0 - Análisis de Simulación {simId}</title>
-        <meta name="description" content="Análisis interactivo de dinámica molecular con ML" />
-      </Head>
-
-      <div className="min-h-screen bg-gray-50">
-        {/* Header */}
-        <header className="bg-white shadow-sm border-b">
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <header className="bg-white shadow-sm border-b">
           <div className="container mx-auto px-4 py-4">
             <div className="flex items-center justify-between">
               <div>
@@ -419,6 +438,5 @@ export default function SimulationDashboard() {
 
         </div>
       </div>
-    </>
   );
 }

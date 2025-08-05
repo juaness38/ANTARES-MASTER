@@ -4,7 +4,7 @@ import React, { useState, useCallback, useRef } from 'react';
 import MolecularViewer from '../visualization/MolecularViewer';
 import PhylogeneticTree from '../visualization/PhylogeneticTree';
 import RealTimeMonitor from '../monitoring/RealTimeMonitor';
-import EnhancedAstroFloraChat from '../chat/EnhancedAstroFloraChat';
+import SimpleChatInterface from '../chat/SimpleChatInterface';
 
 interface EliteControlCenterProps {
   className?: string;
@@ -270,7 +270,7 @@ export default function EliteControlCenter({ className = "" }: EliteControlCente
           style={{ width: `${chatWidth}px` }}
         >
           <div className="h-full">
-            <EnhancedAstroFloraChat onCommand={handleChatCommand} />
+            <SimpleChatInterface />
           </div>
         </div>
       )}
