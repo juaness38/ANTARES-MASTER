@@ -1,14 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { Bell, Sun, Moon, LayoutPanelLeft } from "lucide-react";
+import { Bell, Sun, Moon, LayoutPanelLeft, User } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useDarkMode } from "../../store/darkModeStore";
-import {
-  SignedIn,
-  SignedOut,
-  SignInButton,
-  SignUpButton,
-  UserButton,
-} from "@clerk/clerk-react";
+
+// Temporary: Removed Clerk imports for development
 
 export default function Header({ onSidebarToggle, children }) {
   const isDarkMode = useDarkMode((state) => state.isDarkMode);
@@ -32,7 +27,7 @@ export default function Header({ onSidebarToggle, children }) {
 
   return (
     <motion.header
-      className="z-20 bg-white dark:bg-gray-900 px-6 py-4 flex justify-between items-center shadow-md sticky top-0"
+      className="z-20 bg-card border-b border-border px-6 py-4 flex justify-between items-center scientific-shadow sticky top-0 scientific-font"
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.4, type: "spring" }}
@@ -41,7 +36,7 @@ export default function Header({ onSidebarToggle, children }) {
         {isMobile && (
           <button
             onClick={onSidebarToggle}
-            className="p-2 rounded bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white"
+            className="p-2 rounded-lg bg-muted hover:bg-muted/80 text-foreground scientific-transition"
             aria-label="Toggle sidebar"
           >
             <LayoutPanelLeft className="w-5 h-5" />
@@ -53,7 +48,7 @@ export default function Header({ onSidebarToggle, children }) {
       <div className="flex items-center gap-3">
         <button
           onClick={toggleDarkMode}
-          className="p-2 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200"
+          className="p-2 rounded-lg bg-muted hover:bg-muted/80 text-foreground scientific-transition"
           aria-label="Toggle dark mode"
         >
           <AnimatePresence mode="wait">
@@ -82,38 +77,17 @@ export default function Header({ onSidebarToggle, children }) {
         </button>
 
         <button
-          className="p-2 mr-1 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200 relative"
+          className="p-2 mr-1 rounded-lg bg-muted hover:bg-muted/80 text-foreground scientific-transition relative"
           aria-label="Notifications"
         >
           <Bell className="w-5 h-5" />
-          <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full border border-white dark:border-gray-900"></span>
+          <span className="absolute top-0 right-0 w-2 h-2 bg-destructive rounded-full border border-card"></span>
         </button>
 
-        <SignedIn>
-          <UserButton
-            appearance={{
-              elements: {
-                userButtonAvatarBox:
-                  "w-10 h-10 rounded-full ring-2 ring-emerald-500 dark:ring-emerald-400 shadow-md",
-                userButtonTrigger:
-                  "focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 dark:focus:ring-emerald-400",
-              },
-            }}
-          />
-        </SignedIn>
-
-        <SignedOut>
-          <SignInButton>
-            <button className="text-gray-600 dark:text-gray-300 px-3 py-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition">
-              Iniciar sesión
-            </button>
-          </SignInButton>
-          <SignUpButton>
-            <button className="ml-2 text-gray-600 dark:text-gray-300 px-3 py-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition">
-              Registrarse
-            </button>
-          </SignUpButton>
-        </SignedOut>
+        {/* Temporary: Simplified user section without Clerk */}
+        <button className="p-2 rounded-lg bg-muted hover:bg-muted/80 text-foreground scientific-transition">
+          <User className="w-5 h-5" />
+        </button>
       </div>
     </motion.header>
   );

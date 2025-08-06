@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔴 AstroFlora - CONEXIÓN REAL BACKEND</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            min-height: 100vh;
+            color: white;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .status {
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 15px;
+            font-weight: bold;
+            text-align: center;
+            font-size: 1.4em;
+        }
+        
+        .status.error {
+            background: linear-gradient(45deg, #dc3545, #c82333);
+            box-shadow: 0 8px 25px rgba(220, 53, 69, 0.4);
+        }
+        
+        .backend-test {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 40px;
+            margin: 20px 0;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+        }
+        
+        .test-button {
+            width: 100%;
+            padding: 20px;
+            border: none;
+            border-radius: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+            margin: 10px 0;
+        }
+        
+        .test-button:hover {
+            transform: translateY(-2px);
+        }
+        
+        .response {
+            background: rgba(255, 255, 255, 0.95);
+            color: #333;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 15px;
+            border-left: 6px solid #dc3545;
+        }
+        
+        .loading {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            font-size: 1.1em;
+        }
+        
+        .spinner {
+            width: 25px;
+            height: 25px;
+            border: 3px solid #fff;
+            border-top: 3px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔴 AstroFlora - CONEXIÓN REAL</h1>
+            <p>Pruebas de conectividad al backend 3.85.5.222:8001</p>
+        </div>
+        
+        <div class="status error">
+            🔴 CONECTANDO AL BACKEND REAL - SIN SIMULACIONES
+        </div>
+        
+        <div class="backend-test">
+            <h3>🛠️ Pruebas de Conectividad Backend</h3>
+            
+            <button class="test-button" onclick="testHealth()">
+                🏥 Probar /health endpoint
+            </button>
+            
+            <button class="test-button" onclick="testChat()">
+                💬 Probar /chat endpoint  
+            </button>
+            
+            <button class="test-button" onclick="testChatWithData()">
+                📨 Probar /chat con payload completo
+            </button>
+            
+            <button class="test-button" onclick="testAllEndpoints()">
+                🔍 Escanear todos los endpoints disponibles
+            </button>
+            
+            <div id="loadingIndicator" class="loading" style="display: none;">
+                <div class="spinner"></div>
+                Conectando al backend real...
+            </div>
+            
+            <div id="response" class="response" style="display: none;"></div>
+        </div>
+        
+        <div class="backend-test">
+            <h3>📊 Estado de Conexión en Tiempo Real</h3>
+            <textarea id="messageInput" 
+                      placeholder="Escriba su mensaje para enviar al backend REAL"
+                      style="width: 100%; height: 100px; padding: 15px; border-radius: 10px; border: none; margin-bottom: 15px;"></textarea>
+            <button class="test-button" onclick="sendRealMessage()">
+                🚀 ENVIAR AL BACKEND REAL
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const BACKEND_URL = 'http://3.85.5.222:8001';
+        
+        function showLoading() {
+            document.getElementById('loadingIndicator').style.display = 'flex';
+            document.getElementById('response').style.display = 'none';
+        }
+        
+        function showResponse(content) {
+            document.getElementById('loadingIndicator').style.display = 'none';
+            document.getElementById('response').innerHTML = content;
+            document.getElementById('response').style.display = 'block';
+        }
+        
+        async function testHealth() {
+            showLoading();
+            try {
+                const response = await fetch(`${BACKEND_URL}/health`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+                
+                const data = await response.text();
+                showResponse(`
+                    <h4>🏥 Resultado /health:</h4>
+                    <p><strong>Status:</strong> ${response.status} ${response.statusText}</p>
+                    <p><strong>Respuesta:</strong></p>
+                    <pre>${data}</pre>
+                    <p><strong>Headers:</strong></p>
+                    <pre>${JSON.stringify([...response.headers.entries()], null, 2)}</pre>
+                `);
+            } catch (error) {
+                showResponse(`
+                    <h4>❌ ERROR en /health:</h4>
+                    <p><strong>Error:</strong> ${error.message}</p>
+                    <p><strong>Tipo:</strong> ${error.name}</p>
+                    <p><strong>Causa probable:</strong> CORS, timeout, o endpoint no existe</p>
+                `);
+            }
+        }
+        
+        async function testChat() {
+            showLoading();
+            try {
+                const response = await fetch(`${BACKEND_URL}/chat`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        message: "Test de conexión REAL"
+                    })
+                });
+                
+                const data = await response.text();
+                showResponse(`
+                    <h4>💬 Resultado /chat:</h4>
+                    <p><strong>Status:</strong> ${response.status} ${response.statusText}</p>
+                    <p><strong>Respuesta:</strong></p>
+                    <pre>${data}</pre>
+                `);
+            } catch (error) {
+                showResponse(`
+                    <h4>❌ ERROR en /chat:</h4>
+                    <p><strong>Error:</strong> ${error.message}</p>
+                    <p><strong>Diagnóstico:</strong> Endpoint no responde o CORS bloqueado</p>
+                `);
+            }
+        }
+        
+        async function testChatWithData() {
+            showLoading();
+            try {
+                const payload = {
+                    message: "¿Qué es la proteína BRAF?",
+                    session_id: "test_session_" + Date.now(),
+                    user_id: "demo_user",
+                    context: "scientific_query"
+                };
+                
+                const response = await fetch(`${BACKEND_URL}/chat`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify(payload)
+                });
+                
+                const data = await response.text();
+                showResponse(`
+                    <h4>📨 Resultado /chat con payload completo:</h4>
+                    <p><strong>Status:</strong> ${response.status} ${response.statusText}</p>
+                    <p><strong>Payload enviado:</strong></p>
+                    <pre>${JSON.stringify(payload, null, 2)}</pre>
+                    <p><strong>Respuesta:</strong></p>
+                    <pre>${data}</pre>
+                `);
+            } catch (error) {
+                showResponse(`
+                    <h4>❌ ERROR en /chat con datos:</h4>
+                    <p><strong>Error:</strong> ${error.message}</p>
+                `);
+            }
+        }
+        
+        async function testAllEndpoints() {
+            showLoading();
+            const endpoints = [
+                '/health',
+                '/api/health', 
+                '/chat',
+                '/api/chat',
+                '/driver-ai',
+                '/api/driver-ai',
+                '/',
+                '/docs',
+                '/openapi.json'
+            ];
+            
+            let results = [];
+            
+            for (const endpoint of endpoints) {
+                try {
+                    const response = await fetch(`${BACKEND_URL}${endpoint}`, {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                    });
+                    
+                    results.push({
+                        endpoint,
+                        status: response.status,
+                        statusText: response.statusText,
+                        success: true
+                    });
+                } catch (error) {
+                    results.push({
+                        endpoint,
+                        error: error.message,
+                        success: false
+                    });
+                }
+            }
+            
+            let resultHtml = '<h4>🔍 Escaneo de endpoints:</h4>';
+            results.forEach(result => {
+                if (result.success) {
+                    resultHtml += `<p>✅ ${result.endpoint}: ${result.status} ${result.statusText}</p>`;
+                } else {
+                    resultHtml += `<p>❌ ${result.endpoint}: ${result.error}</p>`;
+                }
+            });
+            
+            showResponse(resultHtml);
+        }
+        
+        async function sendRealMessage() {
+            const message = document.getElementById('messageInput').value.trim();
+            if (!message) {
+                alert('Escriba un mensaje para enviar');
+                return;
+            }
+            
+            showLoading();
+            try {
+                const response = await fetch(`${BACKEND_URL}/chat`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        message: message,
+                        session_id: "real_test_" + Date.now()
+                    })
+                });
+                
+                const data = await response.text();
+                showResponse(`
+                    <h4>🚀 RESPUESTA DEL BACKEND REAL:</h4>
+                    <p><strong>Mensaje enviado:</strong> "${message}"</p>
+                    <p><strong>Status:</strong> ${response.status} ${response.statusText}</p>
+                    <p><strong>Respuesta completa:</strong></p>
+                    <pre>${data}</pre>
+                    <p><strong>Timestamp:</strong> ${new Date().toISOString()}</p>
+                `);
+            } catch (error) {
+                showResponse(`
+                    <h4>❌ ERROR EN CONEXIÓN REAL:</h4>
+                    <p><strong>Mensaje:</strong> "${message}"</p>
+                    <p><strong>Error:</strong> ${error.message}</p>
+                    <p><strong>Diagnóstico:</strong> Backend no responde o CORS/Red</p>
+                `);
+            }
+        }
+        
+        // Auto-test al cargar
+        window.onload = function() {
+            document.getElementById('messageInput').focus();
+            
+            // Test automático de conectividad
+            setTimeout(() => {
+                console.log('🔴 Iniciando test automático de backend...');
+                testHealth();
+            }, 1000);
+        };
+    </script>
+</body>
+</html>

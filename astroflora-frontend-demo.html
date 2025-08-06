@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 AstroFlora Frontend - CEO Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            color: white;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .status {
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 10px;
+            font-weight: bold;
+            text-align: center;
+            font-size: 1.2em;
+            transition: all 0.3s ease;
+        }
+        
+        .status.online {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+        }
+        
+        .status.offline {
+            background: linear-gradient(45deg, #dc3545, #fd7e14);
+            box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+        }
+        
+        .status.checking {
+            background: linear-gradient(45deg, #ffc107, #fd7e14);
+            box-shadow: 0 4px 15px rgba(255, 193, 7, 0.3);
+        }
+        
+        .chat-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .input-section {
+            margin-bottom: 20px;
+        }
+        
+        textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-family: inherit;
+            resize: vertical;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        textarea:focus {
+            outline: none;
+            box-shadow: 0 4px 20px rgba(0, 123, 255, 0.3);
+        }
+        
+        .button-container {
+            display: flex;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        button {
+            flex: 1;
+            padding: 15px 25px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .send-button {
+            background: linear-gradient(45deg, #007bff, #0056b3);
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+        }
+        
+        .send-button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
+        }
+        
+        .send-button:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .clear-button {
+            background: linear-gradient(45deg, #6c757d, #495057);
+            color: white;
+        }
+        
+        .clear-button:hover {
+            background: linear-gradient(45deg, #495057, #343a40);
+        }
+        
+        .quick-tests {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .quick-test {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+        
+        .quick-test:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-1px);
+        }
+        
+        .response {
+            background: rgba(255, 255, 255, 0.95);
+            color: #333;
+            padding: 25px;
+            margin: 20px 0;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border-left: 5px solid #007bff;
+        }
+        
+        .response h3 {
+            color: #007bff;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+        
+        .response-meta {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+        
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            font-size: 1.1em;
+        }
+        
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #fff;
+            border-top: 2px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .error {
+            background: linear-gradient(45deg, #dc3545, #c82333);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 AstroFlora Driver AI</h1>
+            <p>Frontend CEO Demo - Conexión Real con OpenAI GPT-4o</p>
+        </div>
+        
+        <div id="status" class="status checking">
+            🔄 Verificando conexión con Backend...
+        </div>
+        
+        <div class="stats" id="stats" style="display: none;">
+            <div class="stat-card">
+                <div class="stat-value" id="responseTime">--</div>
+                <div>Tiempo de Respuesta</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalQueries">0</div>
+                <div>Consultas Realizadas</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="backendVersion">--</div>
+                <div>Versión Backend</div>
+            </div>
+        </div>
+        
+        <div class="chat-container">
+            <div class="input-section">
+                <textarea 
+                    id="messageInput" 
+                    placeholder="🧬 Pregunta algo sobre bioinformática, proteínas, análisis molecular, o cualquier tema científico...
+
+Ejemplos rápidos:
+• ¿Qué es la proteína BRAF?
+• Explica el proceso de PCR
+• ¿Cómo funciona CRISPR?
+• Analiza esta secuencia: MKTAYIAKQRQISFVK"
+                ></textarea>
+            </div>
+            
+            <div class="button-container">
+                <button id="sendButton" class="send-button" onclick="sendMessage()">
+                    🚀 Consultar AstroFlora Driver AI
+                </button>
+                <button class="clear-button" onclick="clearAll()">
+                    🗑️ Limpiar
+                </button>
+            </div>
+            
+            <div class="quick-tests">
+                <button class="quick-test" onclick="quickTest('¿Qué es la proteína BRAF?')">
+                    🧬 Test: Proteína BRAF
+                </button>
+                <button class="quick-test" onclick="quickTest('Explica el proceso de PCR')">
+                    🔬 Test: PCR
+                </button>
+                <button class="quick-test" onclick="quickTest('¿Cómo funciona CRISPR?')">
+                    ✂️ Test: CRISPR
+                </button>
+                <button class="quick-test" onclick="quickTest('Hola AstroFlora, preséntate')">
+                    👋 Test: Saludo
+                </button>
+            </div>
+            
+            <div id="loadingIndicator" class="loading" style="display: none;">
+                <div class="spinner"></div>
+                Consultando Driver AI con OpenAI GPT-4o...
+            </div>
+            
+            <div id="response" class="response" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://3.85.5.222:8001';
+        let isOnline = false;
+        let totalQueries = 0;
+        let backendInfo = {};
+
+        // Verificar estado al cargar
+        window.onload = function() {
+            checkStatus();
+            
+            // Auto-focus en textarea
+            document.getElementById('messageInput').focus();
+            
+            // Enter para enviar (Ctrl+Enter para nueva línea)
+            document.getElementById('messageInput').addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.ctrlKey && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+        };
+
+        async function checkStatus() {
+            const statusDiv = document.getElementById('status');
+            const statsDiv = document.getElementById('stats');
+            
+            try {
+                const startTime = Date.now();
+                const response = await fetch(`${API_BASE}/api/health`);
+                const responseTime = Date.now() - startTime;
+                
+                const data = await response.json();
+                isOnline = data.status === 'healthy';
+                backendInfo = data;
+                
+                if (isOnline) {
+                    statusDiv.innerHTML = `🟢 AstroFlora Driver AI CONECTADO - ${data.service || 'Backend'} ${data.version || ''}`;
+                    statusDiv.className = 'status online';
+                    
+                    // Mostrar estadísticas
+                    document.getElementById('responseTime').textContent = `${responseTime}ms`;
+                    document.getElementById('backendVersion').textContent = data.version || 'N/A';
+                    statsDiv.style.display = 'grid';
+                } else {
+                    statusDiv.innerHTML = '🔴 Backend no responde correctamente';
+                    statusDiv.className = 'status offline';
+                }
+            } catch (error) {
+                statusDiv.innerHTML = `🔴 Error de conexión: ${error.message}`;
+                statusDiv.className = 'status offline';
+                isOnline = false;
+            }
+            
+            // Habilitar/deshabilitar botón
+            document.getElementById('sendButton').disabled = !isOnline;
+        }
+
+        async function sendMessage() {
+            const message = document.getElementById('messageInput').value.trim();
+            if (!message) {
+                alert('Por favor escribe un mensaje');
+                return;
+            }
+
+            const button = document.getElementById('sendButton');
+            const responseDiv = document.getElementById('response');
+            const loadingDiv = document.getElementById('loadingIndicator');
+            
+            // UI feedback
+            button.disabled = true;
+            button.innerHTML = '🔄 Procesando...';
+            loadingDiv.style.display = 'flex';
+            responseDiv.style.display = 'none';
+            
+            try {
+                const startTime = Date.now();
+                const response = await fetch(`${API_BASE}/api/chat`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ 
+                        message: message,
+                        session_id: `frontend_demo_${Date.now()}`
+                    })
+                });
+                
+                const responseTime = Date.now() - startTime;
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                
+                // Actualizar estadísticas
+                totalQueries++;
+                document.getElementById('totalQueries').textContent = totalQueries;
+                document.getElementById('responseTime').textContent = `${responseTime}ms`;
+                
+                // Mostrar respuesta
+                responseDiv.innerHTML = `
+                    <h3>🧬 Respuesta de AstroFlora Driver AI:</h3>
+                    <div style="white-space: pre-wrap; line-height: 1.6;">${data.response || data.message || 'Respuesta vacía'}</div>
+                    <div class="response-meta">
+                        <strong>Modelo:</strong> ${data.model_used || 'gpt-4o'} | 
+                        <strong>Tokens:</strong> ${data.tokens_used || 'N/A'} | 
+                        <strong>Tiempo:</strong> ${responseTime}ms |
+                        <strong>Estado:</strong> ${data.status || 'success'}
+                    </div>
+                `;
+                responseDiv.style.display = 'block';
+                
+                // Scroll to response
+                responseDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                
+            } catch (error) {
+                responseDiv.innerHTML = `
+                    <div class="error">
+                        <h3>❌ Error de Conexión</h3>
+                        <p><strong>Error:</strong> ${error.message}</p>
+                        <p><strong>Endpoint:</strong> ${API_BASE}/api/chat</p>
+                        <p><strong>Hora:</strong> ${new Date().toLocaleString()}</p>
+                    </div>
+                `;
+                responseDiv.style.display = 'block';
+            }
+            
+            // Restaurar UI
+            loadingDiv.style.display = 'none';
+            button.disabled = !isOnline;
+            button.innerHTML = '🚀 Consultar AstroFlora Driver AI';
+        }
+
+        function quickTest(testMessage) {
+            document.getElementById('messageInput').value = testMessage;
+            sendMessage();
+        }
+
+        function clearAll() {
+            document.getElementById('messageInput').value = '';
+            document.getElementById('response').style.display = 'none';
+            document.getElementById('messageInput').focus();
+        }
+
+        // Verificar estado cada 30 segundos
+        setInterval(checkStatus, 30000);
+    </script>
+</body>
+</html>

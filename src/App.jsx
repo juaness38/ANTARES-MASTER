@@ -21,7 +21,7 @@ function App() {
     <>
       {loading && <FullPageLoader />}
       {!loading && (
-        <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-800 dark:text-white">
+        <div className="min-h-screen bg-background text-foreground scientific-font">
           <AppRouter />
         </div>
       )}

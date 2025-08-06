@@ -1,0 +1,140 @@
+{
+  "astroflora_context_request": {
+    "timestamp": "2025-08-06T00:00:00Z",
+    "requester": "astroflora_frontend_team",
+    "purpose": "driver_ai_integration_and_tuning",
+    
+    "current_status": {
+      "frontend_progress": "Advanced chat client ready for integration",
+      "backend_needed": "Driver AI context and API specifications",
+      "integration_phase": "Phase 1 - Intelligent Client Implementation"
+    },
+
+    "technical_requirements": {
+      "api_documentation": {
+        "endpoints": [
+          {
+            "name": "health_check",
+            "method": "GET",
+            "path": "/api/health",
+            "description": "System status verification"
+          },
+          {
+            "name": "protein_analysis", 
+            "method": "POST",
+            "path": "/api/analyze",
+            "description": "Primary protein sequence analysis",
+            "current_payload": {
+              "sequence": "string (amino acid sequence)",
+              "analysis_type": "string (blast, comprehensive, etc.)"
+            }
+          },
+          {
+            "name": "conversational_chat",
+            "method": "POST", 
+            "path": "/api/chat",
+            "description": "NEEDED: General conversation endpoint",
+            "status": "unknown - please confirm if exists"
+          }
+        ]
+      },
+
+      "response_formats": {
+        "protein_analysis_response": {
+          "current_format": "Driver AI v7.0 format with analysis_id, results, metadata",
+          "needed": "Complete schema documentation"
+        },
+        "chat_response": {
+          "needed": "Response format for conversational queries",
+          "fallback": "Will implement local intelligence if not available"
+        },
+        "error_responses": {
+          "needed": "Standard error format and codes"
+        }
+      },
+
+      "authentication": {
+        "method": "unknown",
+        "api_keys": "if required",
+        "rate_limiting": "limits per user/endpoint",
+        "cors_settings": "current CORS configuration"
+      }
+    },
+
+    "functional_requirements": {
+      "driver_ai_capabilities": {
+        "protein_analysis": {
+          "types_supported": ["blast", "structure_prediction", "domain_analysis"],
+          "input_formats": ["fasta", "raw_sequence", "multi_sequence"],
+          "output_details": "molecular_weight, isoelectric_point, domains, etc."
+        },
+        "conversational_mode": {
+          "availability": "unknown - please confirm",
+          "scope": "scientific_questions, protocol_help, experiment_guidance",
+          "context_awareness": "can it maintain conversation history?"
+        },
+        "batch_processing": {
+          "multiple_sequences": "supported?",
+          "large_datasets": "limitations and best practices"
+        }
+      },
+
+      "integration_points": {
+        "experiment_workflow": "how to link analysis with experiment IDs",
+        "user_context": "how to pass user information and preferences",
+        "result_storage": "where results are stored and retrieved",
+        "real_time_updates": "websocket support for long-running analyses"
+      }
+    },
+
+    "swarm_mode_preparation": {
+      "future_features": {
+        "multi_ai_coordination": "preparation for OpenAI + Azure ML + Driver AI",
+        "consensus_mechanisms": "how multiple AIs will coordinate responses",
+        "load_balancing": "distribution strategy for multiple AI services"
+      },
+      "current_priority": "low - focusing on core Driver AI integration first"
+    },
+
+    "specific_questions": [
+      "Does Driver AI have a conversational/chat endpoint beyond protein analysis?",
+      "What's the exact request/response format for the /api/analyze endpoint?",
+      "How should we handle general scientific questions that aren't protein sequences?",
+      "Is there authentication required for API access?",
+      "What are the rate limits and timeout recommendations?",
+      "Can Driver AI maintain conversation context between requests?",
+      "Are there plans to add more general AI capabilities to Driver AI backend?",
+      "What's the preferred fallback strategy when Driver AI is unavailable?",
+      "How should we integrate with the experiment workflow system?",
+      "What logging/monitoring is needed on the frontend side?"
+    ],
+
+    "current_implementation": {
+      "client_architecture": "Intelligent routing based on input detection",
+      "fallback_strategy": "Local intelligence for non-protein queries", 
+      "conversation_management": "Frontend maintains history and context",
+      "error_handling": "Graceful degradation with user-friendly messages"
+    },
+
+    "next_steps": {
+      "immediate": [
+        "Get Driver AI API documentation",
+        "Implement intelligent client with proper routing",
+        "Test protein analysis integration",
+        "Implement conversational fallbacks"
+      ],
+      "short_term": [
+        "Integrate with Astroflora frontend structure",
+        "Connect with experiment workflow",
+        "Add Clerk authentication",
+        "Implement Molstar visualizations"
+      ],
+      "long_term": [
+        "Prepare swarm mode architecture",
+        "Add Azure ML and OpenAI integration",
+        "Implement advanced experiment protocols",
+        "Build comprehensive AI ecosystem"
+      ]
+    }
+  }
+}

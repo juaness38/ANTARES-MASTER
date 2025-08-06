@@ -66,7 +66,7 @@ export default function Sidebar() {
         <div className="fixed top-4 left-4 z-30 hidden lg:block">
           <button
             onClick={toggleCollapsed}
-            className="p-2 fixed top-4 left-4 z-30 bg-gray-100 dark:bg-gray-800 rounded-full shadow-md text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all"
+            className="p-2 fixed top-4 left-4 z-30 bg-muted rounded-lg scientific-shadow text-foreground hover:bg-muted/80 scientific-transition"
           >
             <ChevronRight
               className={`w-5 h-5 transition-transform duration-300 ${
@@ -84,11 +84,11 @@ export default function Sidebar() {
           opacity: isCollapsed && isMobile ? 0 : 1,
         }}
         transition={{ duration: 0.1 }}
-        className={`fixed z-30 top-0 left-0 min-h-screen bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 shadow-xl flex flex-col overflow-hidden transition-all duration-300 lg:static ${
+        className={`fixed z-30 top-0 left-0 min-h-screen bg-card border-r border-border scientific-shadow flex flex-col overflow-hidden scientific-transition scientific-font lg:static ${
           isCollapsed && isMobile ? "pointer-events-none" : ""
         }`}
       >
-        <div className="p-5 pb-3 flex justify-between items-center border-b border-gray-200 dark:border-gray-800">
+        <div className="p-5 pb-3 flex justify-between items-center border-b border-border">
           <AnimatePresence>
             {!isCollapsed && (
               <motion.div
@@ -98,11 +98,11 @@ export default function Sidebar() {
                 className="flex items-center"
                 transition={{ duration: 0.1 }}
               >
-                <span className="bg-gradient-to-r from-emerald-500 to-teal-600 p-1 rounded-lg mr-3 shadow-lg">
-                  <LayoutPanelLeft className="text-white text-lg" />
+                <span className="bg-gradient-to-r from-primary to-primary/80 p-1 rounded-lg mr-3 scientific-shadow">
+                  <LayoutPanelLeft className="text-primary-foreground text-lg" />
                 </span>
-                <h2 className="text-xl font-bold text-gray-800 dark:text-white bg-gradient-to-r from-emerald-600 to-teal-700 bg-clip-text">
-                  Astroflora
+                <h2 className="text-xl font-bold text-foreground bg-gradient-to-r from-primary to-primary/80 bg-clip-text">
+                  ANTARES
                 </h2>
               </motion.div>
             )}
@@ -111,7 +111,7 @@ export default function Sidebar() {
           <div className="hidden lg:block">
             <button
               onClick={toggleCollapsed}
-              className="p-2 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all"
+              className="p-2 rounded-lg bg-muted text-muted-foreground hover:bg-muted/80 scientific-transition"
               aria-label={isCollapsed ? "Expandir sidebar" : "Colapsar sidebar"}
             >
               <ChevronRight
@@ -130,10 +130,10 @@ export default function Sidebar() {
                 <NavLink
                   to={link.to}
                   className={({ isActive }) =>
-                    `flex items-center px-4 py-3 rounded-xl transition-all duration-300 ${
+                    `flex items-center px-4 py-3 rounded-xl scientific-transition ${
                       isActive
-                        ? "bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-medium"
-                        : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800/50"
+                        ? "bg-primary/10 text-primary font-medium"
+                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
                     }`
                   }
                 >
@@ -141,7 +141,7 @@ export default function Sidebar() {
                     className={`p-2 rounded-lg ${isCollapsed ? "" : "mr-3"} ${
                       isCollapsed
                         ? "bg-transparent"
-                        : " dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-medium"
+                        : "bg-primary/10 text-primary font-medium"
                     }`}
                   >
                     {link.icon}
@@ -153,17 +153,17 @@ export default function Sidebar() {
           </ul>
         </nav>
 
-        <div className="border-t border-gray-200 dark:border-gray-800 pt-2 pb-4 px-2">
+        <div className="border-t border-border pt-2 pb-4 px-2">
           <ul className="space-y-1">
             {secondaryLinks.map((link) => (
               <li key={link.to}>
                 <NavLink
                   to={link.to}
                   className={({ isActive }) =>
-                    `flex items-center px-4 py-3 rounded-xl transition-all ${
+                    `flex items-center px-4 py-3 rounded-xl scientific-transition ${
                       isActive
-                        ? "bg-blue-500/10 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400"
-                        : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800/50"
+                        ? "bg-secondary/50 text-secondary-foreground"
+                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
                     }`
                   }
                 >
@@ -171,7 +171,7 @@ export default function Sidebar() {
                     className={`p-2 rounded-lg ${isCollapsed ? "" : "mr-3"} ${
                       isCollapsed
                         ? "bg-transparent"
-                        : "bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300"
+                        : "bg-muted text-muted-foreground"
                     }`}
                   >
                     {link.icon}

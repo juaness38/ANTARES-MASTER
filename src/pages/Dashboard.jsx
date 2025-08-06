@@ -43,7 +43,7 @@ export default function Dashboard() {
             />
           </div>
         </Header>
-        <main className="flex-1 bg-gray-50 dark:bg-gray-900 p-4 transition-all duration-300">
+        <main className="flex-1 bg-background p-0 transition-all duration-300 scientific-font">
           <DashboardHome />
         </main>
       </div>

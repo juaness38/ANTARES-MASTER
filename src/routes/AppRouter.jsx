@@ -3,59 +3,15 @@ import Dashboard from "../pages/Dashboard";
 import Analysis from "../pages/Analysis";
 import Experiments from "../pages/Experiments";
 import Monitoring from "../pages/Monitoring";
-import SignInPage from "../pages/SignIn";
-import SignUpPage from "../pages/SignUpPage";
-import ProtectedRoute from "../routes/ProtectedRoute";
 
 export default function AppRouter() {
   return (
     <Routes>
-      <Route
-        path="/sign-in/*"
-        element={<SignInPage routing="path" path="/sign-in" />}
-      />
-      <Route
-        path="/sign-up/*"
-        element={<SignUpPage routing="path" path="/sign-up" />}
-      />
-
       <Route path="/" element={<Navigate to="/dashboard" />} />
-
-      <Route
-        path="/dashboard"
-        element={
-          <ProtectedRoute>
-            <Dashboard />
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/analysis"
-        element={
-          <ProtectedRoute>
-            <Analysis />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/experiments"
-        element={
-          <ProtectedRoute>
-            <Experiments />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/monitoring"
-        element={
-          <ProtectedRoute>
-            <Monitoring />
-          </ProtectedRoute>
-        }
-      />
-
-      <Route path="*" element={<Navigate to="/sign-in" />} />
+      <Route path="/dashboard" element={<Dashboard />} />
+      <Route path="/analysis" element={<Analysis />} />
+      <Route path="/experiments" element={<Experiments />} />
+      <Route path="/monitoring" element={<Monitoring />} />
     </Routes>
   );
 }

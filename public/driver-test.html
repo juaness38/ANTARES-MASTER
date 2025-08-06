@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Driver AI Connection Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #1a1a1a; color: white; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .test-box { background: #2a2a2a; padding: 20px; margin: 10px 0; border-radius: 8px; }
+        .success { border-left: 4px solid #00ff88; }
+        .error { border-left: 4px solid #ff4444; }
+        .loading { border-left: 4px solid #ffaa00; }
+        button { background: #00ff88; color: black; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; margin: 5px; }
+        button:hover { background: #00cc70; }
+        .response { background: #333; padding: 15px; border-radius: 4px; margin-top: 10px; white-space: pre-wrap; max-height: 400px; overflow-y: auto; }
+        input { background: #333; color: white; border: 1px solid #555; padding: 8px; border-radius: 4px; width: 300px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧬 Driver AI - Conexión Definitiva</h1>
+        
+        <div class="test-box" id="health-status">
+            <h3>📡 Estado del Backend</h3>
+            <button onclick="checkHealth()">Verificar Health</button>
+            <div id="health-result"></div>
+        </div>
+
+        <div class="test-box" id="analyze-test">
+            <h3>🔬 Test de Análisis</h3>
+            <input type="text" id="sequence-input" placeholder="Ingresa secuencia (ej: ATCGATCG)" value="ATCGATCGATCG">
+            <button onclick="testAnalyze()">Analizar Secuencia</button>
+            <div id="analyze-result"></div>
+        </div>
+
+        <div class="test-box" id="chat-test">
+            <h3>💬 Test de Chat</h3>
+            <input type="text" id="chat-input" placeholder="Mensaje de prueba" value="Hola Driver AI">
+            <button onclick="testChat()">Enviar Chat</button>
+            <div id="chat-result"></div>
+        </div>
+    </div>
+
+    <script>
+        async function checkHealth() {
+            const resultDiv = document.getElementById('health-result');
+            resultDiv.innerHTML = '<div class="loading">⏳ Verificando...</div>';
+            
+            try {
+                const response = await fetch('/api/driver/health');
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <div class="response success">
+                            ✅ Backend Saludable
+                            
+                            🔧 Servicio: ${data.service}
+                            📍 Versión: ${data.version}
+                            ⏰ Timestamp: ${data.timestamp}
+                            ⚡ Uptime: ${Math.floor(data.uptime_seconds / 3600)} horas
+                        </div>
+                    `;
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="response error">❌ Error: ${error.message}</div>`;
+            }
+        }
+
+        async function testAnalyze() {
+            const sequence = document.getElementById('sequence-input').value;
+            const resultDiv = document.getElementById('analyze-result');
+            resultDiv.innerHTML = '<div class="loading">⏳ Analizando...</div>';
+            
+            try {
+                const response = await fetch('/api/driver/analyze', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ sequence: sequence })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.results) {
+                    const results = data.results;
+                    resultDiv.innerHTML = `
+                        <div class="response success">
+                            ✅ Análisis Completado
+                            
+                            📊 ID: ${data.analysis_id}
+                            🔬 Engine: ${data.engine}
+                            📏 Longitud: ${results.sequence_info?.length} residuos
+                            ⚖️ Peso: ${results.sequence_info?.molecular_weight_kda} kDa
+                            🧪 pH: ${results.sequence_info?.isoelectric_point}
+                            💧 Hidrofobicidad: ${results.sequence_info?.hydrophobicity_index}
+                            
+                            🏗️ Estructura:
+                            • α-hélice: ${((results.structural_prediction?.alpha_helix_probability || 0) * 100).toFixed(1)}%
+                            • β-lámina: ${((results.structural_prediction?.beta_sheet_probability || 0) * 100).toFixed(1)}%
+                            • Random coil: ${((results.structural_prediction?.random_coil_probability || 0) * 100).toFixed(1)}%
+                            
+                            ⚡ Confianza: ${((data.metadata?.confidence_score || 0) * 100).toFixed(1)}%
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `<div class="response error">❌ Respuesta inesperada: ${JSON.stringify(data, null, 2)}</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="response error">❌ Error: ${error.message}</div>`;
+            }
+        }
+
+        async function testChat() {
+            const message = document.getElementById('chat-input').value;
+            const resultDiv = document.getElementById('chat-result');
+            resultDiv.innerHTML = '<div class="loading">⏳ Enviando...</div>';
+            
+            try {
+                const response = await fetch('/api/driver/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ sequence: message })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <div class="response success">
+                            ✅ Chat Funcionando
+                            
+                            ${JSON.stringify(data, null, 2)}
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `<div class="response error">❌ Error ${response.status}: ${JSON.stringify(data, null, 2)}</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="response error">❌ Error: ${error.message}</div>`;
+            }
+        }
+
+        // Auto-check health on load
+        window.onload = () => {
+            checkHealth();
+        };
+    </script>
+</body>
+</html>

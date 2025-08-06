@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧬 MICA - Molecular Intelligence & Computational Analysis</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f1419 0%, #1a2332 50%, #2d3748 100%);
+            min-height: 100vh;
+            color: white;
+            overflow-x: hidden;
+        }
+        
+        .header {
+            padding: 20px;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 5px;
+            background: linear-gradient(45deg, #00d4ff, #00ff88);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .header p {
+            opacity: 0.8;
+            font-size: 1.1em;
+        }
+        
+        .main-container {
+            display: grid;
+            grid-template-columns: 300px 1fr 400px;
+            height: calc(100vh - 120px);
+            gap: 0;
+        }
+        
+        .sidebar {
+            background: #1a2332;
+            padding: 20px;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            overflow-y: auto;
+        }
+        
+        .sidebar h2 {
+            color: #00d4ff;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+        }
+        
+        .component {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .component:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(5px);
+        }
+        
+        .component.active {
+            background: rgba(0, 212, 255, 0.1);
+            border-color: #00d4ff;
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+        }
+        
+        .component-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+            display: inline-block;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        
+        .bioinformatica { background: #10b981; }
+        .preparacion { background: #3b82f6; }
+        .microambiente { background: #10b981; }
+        .analisis { background: #ef4444; }
+        .decision { background: #f59e0b; }
+        .ia-orquestacion { background: #8b5cf6; }
+        
+        .component-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 1.1em;
+        }
+        
+        .component-desc {
+            font-size: 0.9em;
+            opacity: 0.7;
+        }
+        
+        .workflow-area {
+            background: #0f1419;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .workflow-canvas {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            background-image: 
+                radial-gradient(circle at 25% 25%, rgba(0, 212, 255, 0.1) 0%, transparent 25%),
+                radial-gradient(circle at 75% 75%, rgba(0, 255, 136, 0.1) 0%, transparent 25%);
+        }
+        
+        .workflow-node {
+            position: absolute;
+            width: 150px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-size: 0.9em;
+            font-weight: bold;
+            backdrop-filter: blur(10px);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .workflow-node:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+        
+        .chat-panel {
+            background: #1a2332;
+            border-left: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        
+        .chat-header {
+            padding: 15px 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .chat-header .status {
+            width: 8px;
+            height: 8px;
+            background: #10b981;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .message {
+            margin-bottom: 15px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            max-width: 90%;
+            line-height: 1.4;
+        }
+        
+        .message.user {
+            background: linear-gradient(45deg, #3b82f6, #1d4ed8);
+            margin-left: auto;
+            text-align: right;
+        }
+        
+        .message.assistant {
+            background: rgba(255, 255, 255, 0.1);
+            border-left: 3px solid #00d4ff;
+        }
+        
+        .chat-input-section {
+            padding: 15px 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.2);
+        }
+        
+        .chat-input {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: white;
+            resize: none;
+            font-family: inherit;
+            font-size: 14px;
+        }
+        
+        .chat-input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .chat-input:focus {
+            outline: none;
+            border-color: #00d4ff;
+            box-shadow: 0 0 0 2px rgba(0, 212, 255, 0.2);
+        }
+        
+        .send-button {
+            margin-top: 10px;
+            width: 100%;
+            padding: 10px;
+            background: linear-gradient(45deg, #00d4ff, #00ff88);
+            border: none;
+            border-radius: 8px;
+            color: #000;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .send-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 212, 255, 0.3);
+        }
+        
+        .send-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .experiment-panel {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+            min-width: 250px;
+        }
+        
+        .experiment-title {
+            color: #00d4ff;
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+        
+        .shortcuts {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            font-size: 11px;
+            opacity: 0.6;
+            text-align: right;
+        }
+        
+        .connection-line {
+            position: absolute;
+            height: 2px;
+            background: linear-gradient(90deg, #00d4ff, #00ff88);
+            opacity: 0.5;
+            animation: flow 2s linear infinite;
+        }
+        
+        @keyframes flow {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        .floating-action {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(45deg, #00d4ff, #00ff88);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(0, 212, 255, 0.4);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .floating-action:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 25px rgba(0, 212, 255, 0.6);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🧬 MICA</h1>
+        <p>Molecular Intelligence & Computational Analysis Platform</p>
+    </div>
+    
+    <div class="main-container">
+        <!-- Sidebar de Componentes -->
+        <div class="sidebar">
+            <h2>Componentes</h2>
+            
+            <div class="component active" data-component="bioinformatica">
+                <div class="component-icon bioinformatica"></div>
+                <div class="component-title">Bioinformática</div>
+                <div class="component-desc">Análisis de secuencias y estructuras moleculares</div>
+            </div>
+            
+            <div class="component" data-component="preparacion">
+                <div class="component-icon preparacion"></div>
+                <div class="component-title">Preparación</div>
+                <div class="component-desc">Preparación y muestra de datos experimentales</div>
+            </div>
+            
+            <div class="component" data-component="microambiente">
+                <div class="component-icon microambiente"></div>
+                <div class="component-title">Microambiente</div>
+                <div class="component-desc">Simulación de condiciones ambientales</div>
+            </div>
+            
+            <div class="component" data-component="analisis">
+                <div class="component-icon analisis"></div>
+                <div class="component-title">Análisis</div>
+                <div class="component-desc">Procesamiento y análisis de resultados</div>
+            </div>
+            
+            <div class="component" data-component="decision">
+                <div class="component-icon decision"></div>
+                <div class="component-title">Decisión</div>
+                <div class="component-desc">Toma de decisiones basada en evidencia</div>
+            </div>
+            
+            <div class="component" data-component="ia-orquestacion">
+                <div class="component-icon ia-orquestacion"></div>
+                <div class="component-title">IA Orquestación</div>
+                <div class="component-desc">Coordinación inteligente de procesos</div>
+            </div>
+        </div>
+        
+        <!-- Área de Workflow Central -->
+        <div class="workflow-area">
+            <div class="workflow-canvas">
+                <!-- Panel de Nuevo Experimento -->
+                <div class="experiment-panel">
+                    <div class="experiment-title">Nuevo experimento</div>
+                    <div>Configurar análisis molecular personalizado</div>
+                </div>
+                
+                <!-- Nodos del Workflow -->
+                <div class="workflow-node" style="top: 150px; left: 200px; border-color: #10b981;">
+                    Preparación<br>y muestra
+                </div>
+                
+                <div class="workflow-node" style="top: 300px; left: 400px; border-color: #10b981;">
+                    Preparación<br>y muestra
+                </div>
+                
+                <!-- Líneas de conexión -->
+                <div class="connection-line" style="top: 189px; left: 350px; width: 100px;"></div>
+                
+                <!-- Atajos de teclado -->
+                <div class="shortcuts">
+                    Pulsa <strong>Enter</strong> para enviar, Shift + Enter para nueva línea
+                </div>
+            </div>
+        </div>
+        
+        <!-- Panel de Chat -->
+        <div class="chat-panel">
+            <div class="chat-header">
+                <div class="status"></div>
+                <span>🤖 Asistente Astroflora</span>
+                <div style="margin-left: auto; font-size: 0.8em; opacity: 0.7;">
+                    Estoy aquí para ayudarte
+                </div>
+            </div>
+            
+            <div class="chat-messages" id="chatMessages">
+                <div class="message assistant">
+                    <strong>🧬 MICA Sistema Iniciado</strong><br><br>
+                    Bienvenido a la plataforma MICA (Molecular Intelligence & Computational Analysis).<br><br>
+                    <strong>Componentes Activos:</strong><br>
+                    ✅ Bioinformática - Análisis molecular<br>
+                    ✅ Preparación - Gestión de muestras<br>
+                    ✅ Microambiente - Simulaciones<br>
+                    ✅ Análisis - Procesamiento de datos<br>
+                    ✅ Decisión - Evaluación de resultados<br>
+                    ✅ IA Orquestación - Coordinación inteligente<br><br>
+                    ¿En qué experimento molecular puedo ayudarte hoy?
+                </div>
+            </div>
+            
+            <div class="chat-input-section">
+                <textarea 
+                    id="messageInput" 
+                    class="chat-input" 
+                    placeholder="Escribe un mensaje..."
+                    rows="3"
+                ></textarea>
+                <button class="send-button" onclick="sendMessage()">
+                    🚀 Enviar Análisis
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Botón de Acción Flotante -->
+    <div class="floating-action" onclick="newExperiment()">
+        ⚗️
+    </div>
+
+    <!-- Botón de Acción Flotante -->
+    <div class="floating-action" onclick="newExperiment()">
+        ⚗️
+    </div>
+
+    <!-- Axios CDN para que funcione el chatService -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    
+    <!-- Módulo de servicio de chat -->
+    <script type="module">
+        // No se puede usar import/export directamente en un script de navegador sin ser un módulo.
+        // Para simplificar, pegaremos la clase ChatService aquí y la adaptaremos.
+
+        class ChatService {
+            constructor() {
+                const API_URL = 'http://3.85.5.222:8001';
+                this.axiosInstance = axios.create({
+                    baseURL: API_URL,
+                    timeout: 30000,
+                    headers: { 'Content-Type': 'application/json' }
+                });
+            }
+
+            async checkConnection() {
+                try {
+                    const response = await this.axiosInstance.get('/api/health');
+                    console.log('Estado del backend:', response.data.status);
+                    return response.data.status === 'healthy' || response.status === 200;
+                } catch (error) {
+                    console.error('Error al verificar conexión con el backend:', error);
+                    return false;
+                }
+            }
+
+            async sendMessage(message) {
+                try {
+                    const response = await this.axiosInstance.post('/api/chat', { message });
+                    if (!response.data || response.data.status === 'error') {
+                        throw new Error(response.data?.detail || 'Error en la respuesta del servidor');
+                    }
+                    return {
+                        text: response.data.response,
+                        timestamp: new Date().toISOString(),
+                        source: 'assistant',
+                        success: true
+                    };
+                } catch (error) {
+                    console.error('Error al enviar mensaje:', error);
+                    return {
+                        text: `Lo siento, ha ocurrido un error: ${error.message || 'Error de comunicación'}`,
+                        timestamp: new Date().toISOString(),
+                        source: 'error',
+                        success: false
+                    };
+                }
+            }
+        }
+
+        const chatService = new ChatService();
+
+        // Variables globales
+        window.currentComponent = 'bioinformatica';
+        
+        // Elementos DOM
+        const chatMessages = document.getElementById('chatMessages');
+        const messageInput = document.getElementById('messageInput');
+        const sendButton = document.querySelector('.send-button');
+        
+        // --- FUNCIONES PRINCIPALES ---
+
+        // Enviar mensaje al backend
+        window.sendMessage = async function() {
+            const message = messageInput.value.trim();
+            if (!message) return;
+            
+            addMessage('user', message);
+            messageInput.value = '';
+            sendButton.disabled = true;
+            sendButton.innerHTML = 'Procesando...';
+            
+            const loadingMessage = addMessage('assistant', '🔄 Procesando con IA molecular...');
+            
+            try {
+                const response = await chatService.sendMessage(message);
+                loadingMessage.remove();
+                addMessage(response.success ? 'assistant' : 'error', response.text);
+            } catch (error) {
+                loadingMessage.remove();
+                addMessage('error', `Error de comunicación: ${error.message}`);
+            } finally {
+                sendButton.disabled = false;
+                sendButton.innerHTML = '🚀 Enviar Análisis';
+            }
+        }
+
+        // Agregar mensaje a la UI del chat
+        function addMessage(type, content) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            const contentDiv = document.createElement('div');
+            contentDiv.innerText = content;
+            messageDiv.innerHTML = contentDiv.innerHTML.replace(/\n/g, '<br>');
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            return messageDiv;
+        }
+
+        // Verificar el estado del backend al cargar
+        async function checkBackendStatus() {
+            const statusIndicator = document.querySelector('.chat-header .status');
+            addMessage('assistant', 'Conectando con el backend de MICA...');
+            const isConnected = await chatService.checkConnection();
+            if (isConnected) {
+                statusIndicator.style.background = '#10b981'; // Verde
+                addMessage('assistant', '✅ Backend conectado. Listo para análisis.');
+            } else {
+                statusIndicator.style.background = '#ef4444'; // Rojo
+                addMessage('assistant', '❌ No se pudo conectar al backend. Operando en modo local.');
+            }
+        }
+
+        // --- INICIALIZACIÓN ---
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Inicializar componentes de la sidebar
+            document.querySelectorAll('.component').forEach(component => {
+                component.addEventListener('click', function() {
+                    document.querySelectorAll('.component').forEach(c => c.classList.remove('active'));
+                    this.classList.add('active');
+                    window.currentComponent = this.dataset.component;
+                    addMessage('assistant', `Componente ${window.currentComponent} activado.`);
+                });
+            });
+
+            // Inicializar el chat y sus eventos
+            messageInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    window.sendMessage();
+                }
+            });
+
+            // Iniciar la verificación de estado
+            checkBackendStatus();
+            messageInput.focus();
+        });
+
+        // Función para iniciar un nuevo experimento
+        window.newExperiment = function() {
+            addMessage('assistant', `🆕 **Nuevo Experimento MICA**\n\nIniciando workflow molecular personalizado...`);
+        }
+        
+        console.log('🧬 MICA Platform Initialized - Conectado a servicio real');
+    </script>
+</body>
+</html>

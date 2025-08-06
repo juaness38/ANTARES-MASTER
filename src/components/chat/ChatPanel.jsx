@@ -1,31 +1,160 @@
 import { useState, useRef, useEffect } from "react";
-import { Send, X, MessageCircle } from "lucide-react";
+import { Send, X, MessageCircle, Brain } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { jarvisClient } from "../../../lib/jarvis-client";
 
 export default function ChatPanel() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [isOpen, setIsOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [driverAIStatus, setDriverAIStatus] = useState('checking');
   const bottomRef = useRef(null);
 
-  const handleSend = () => {
-    if (!input.trim()) return;
+  // Verificar disponibilidad del Driver AI usando el nuevo cliente
+  const checkDriverAIStatus = async () => {
+    try {
+      console.log('🔍 Verificando estado de Driver AI con nuevo cliente...');
+      
+      const isHealthy = await jarvisClient.checkHealth();
+      
+      if (isHealthy) {
+        console.log('✅ Driver AI disponible (nuevo cliente)');
+        setDriverAIStatus('connected');
+        return true;
+      } else {
+        console.warn('⚠️ Driver AI no disponible (nuevo cliente)');
+        setDriverAIStatus('error');
+        return false;
+      }
+    } catch (error) {
+      console.error('❌ Error al conectar con Driver AI:', error.message);
+      setDriverAIStatus('error');
+      return false;
+    }
+  };
 
-    const newMessage = { text: input.trim(), sender: "user" };
-    setMessages((prev) => [...prev, newMessage]);
+  // Función para detectar si un mensaje requiere análisis científico
+  const isScientificQuery = (message) => {
+    const lowerMessage = message.toLowerCase();
+    
+    // 1. DETECTAR SECUENCIAS DE AMINOÁCIDOS (más estricto)
+    const aminoAcidPattern = /^[ACDEFGHIKLMNPQRSTVWY]{10,}$/i;
+    const cleanMessage = message.replace(/\s+/g, '');
+    if (aminoAcidPattern.test(cleanMessage) && cleanMessage.length >= 10) {
+      console.log('🧬 Secuencia de aminoácidos detectada');
+      return true;
+    }
+    
+    // 2. DETECTAR PALABRAS CLAVE CIENTÍFICAS ESPECÍFICAS (más estricto)
+    const explicitScientificPhrases = [
+      'haz un blast', 'hacer blast', 'analiza la secuencia', 'análisis blast',
+      'secuencia de proteína', 'análisis molecular', 'estructura pdb',
+      'blast search', 'protein analysis', 'molecular analysis'
+    ];
+    
+    // Buscar frases completas primero
+    const hasExplicitPhrase = explicitScientificPhrases.some(phrase => 
+      lowerMessage.includes(phrase)
+    );
+    
+    if (hasExplicitPhrase) {
+      console.log('🔬 Consulta científica explícita detectada:', hasExplicitPhrase);
+      return true;
+    }
+    
+    // 3. PALABRAS CLAVE SOLO SI ESTÁN EN CONTEXTO CIENTÍFICO
+    const scientificKeywords = ['blast', 'pdb', 'uniprot', 'genbank'];
+    const hasScientificKeyword = scientificKeywords.some(keyword => 
+      lowerMessage.includes(keyword)
+    );
+    
+    // Solo considerar científico si tiene palabras clave MUY específicas
+    if (hasScientificKeyword) {
+      console.log('🔬 Palabra clave científica específica detectada');
+      return true;
+    }
+    
+    // 4. POR DEFECTO: ES CONVERSACIONAL
+    console.log('💬 Consulta conversacional detectada');
+    return false;
+  };
+
+  const handleSend = async () => {
+    if (!input.trim() || isLoading) return;
+
+    const userMessage = { text: input.trim(), sender: "user", timestamp: new Date() };
+    setMessages((prev) => [...prev, userMessage]);
     setInput("");
+    setIsLoading(true);
 
-    setTimeout(() => {
-      setMessages((prev) => [
-        ...prev,
-        { text: `🌿 Astroflora responde: "${newMessage.text}"`, sender: "bot" },
-      ]);
-    }, 600);
+    try {
+      if (driverAIStatus === 'connected') {
+        console.log('🧠 Enviando a Driver AI con nuevo cliente:', userMessage.text);
+        
+        // ✨ USAR EL NUEVO CLIENTE BASADO EN OSCAR
+        const driverResponse = await jarvisClient.process(userMessage.text);
+        
+        console.log('📥 Respuesta del Driver AI:', driverResponse);
+        
+        const aiMessage = {
+          text: driverResponse.message,
+          sender: "bot",
+          timestamp: new Date(),
+          confidence: driverResponse.confidence,
+          commands: driverResponse.commands,
+          data: driverResponse.data,
+          suggestions: driverResponse.suggestions,
+          intention: driverResponse.intention,
+          source: 'driver-ai'
+        };
+        
+        setMessages((prev) => [...prev, aiMessage]);
+        
+        // Ejecutar comandos si los hay
+        if (driverResponse.commands && driverResponse.commands.length > 0) {
+          console.log('⚡ Ejecutando comandos automáticos:', driverResponse.commands);
+          await jarvisClient.executeCommands(driverResponse.commands);
+        }
+      } else {
+        // Sin Driver AI, respuesta simple
+        setMessages((prev) => [...prev, { 
+          text: `🌿 Astroflora responde: "${userMessage.text}"`, 
+          sender: "bot",
+          timestamp: new Date(),
+          source: 'simple'
+        }]);
+      }
+    } catch (error) {
+      console.error('❌ Error en handleSend:', error);
+      setMessages((prev) => [...prev, { 
+        text: `🚨 Error al procesar mensaje: ${error.message}`, 
+        sender: "bot",
+        timestamp: new Date(),
+        source: 'error'
+      }]);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  // Verificar Driver AI al montar el componente
+  useEffect(() => {
+    checkDriverAIStatus();
+    
+    // Verificar cada 30 segundos si está desconectado
+    const interval = setInterval(() => {
+      if (driverAIStatus !== 'connected') {
+        checkDriverAIStatus();
+      }
+    }, 30000);
+    
+    return () => clearInterval(interval);
+  }, [driverAIStatus]);
 
   return (
     <>
@@ -72,12 +201,14 @@ export default function ChatPanel() {
                   aria-hidden="true"
                   className="text-xl animate-pulse text-emerald-400 drop-shadow-lg"
                 >
-                  🌱
+                  {driverAIStatus === 'connected' ? '🧠' : '🌱'}
                 </span>
-                Asistente <span className="text-emerald-400">Astroflora</span>
+                {driverAIStatus === 'connected' ? 'Driver AI' : 'Asistente'} <span className="text-emerald-400">Astroflora</span>
               </h2>
               <p className="mt-1 text-sm font-semibold text-gray-700 dark:text-gray-300 opacity-90">
-                Estoy aquí para ayudarte
+                {driverAIStatus === 'connected' ? 'Sistema inteligente conectado' : 
+                 driverAIStatus === 'checking' ? 'Verificando conexión...' : 'Modo básico disponible'}
+                {isLoading && ' • Procesando...'}
               </p>
             </div>
             <button
@@ -161,10 +292,15 @@ export default function ChatPanel() {
               />
               <button
                 onClick={handleSend}
-                className="absolute bottom-3 right-3 text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 p-1 transition active:scale-95"
-                title="Enviar"
+                disabled={isLoading}
+                className={`absolute bottom-3 right-3 p-1 transition active:scale-95 ${
+                  isLoading 
+                    ? 'text-gray-400 cursor-not-allowed' 
+                    : 'text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300'
+                }`}
+                title={isLoading ? "Procesando..." : "Enviar"}
               >
-                <Send className="w-5 h-5" />
+                {isLoading ? <Brain className="w-5 h-5 animate-pulse" /> : <Send className="w-5 h-5" />}
               </button>
             </div>
             <p className="mt-2 text-[11px] text-gray-400 dark:text-gray-600">

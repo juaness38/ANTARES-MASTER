@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AstroFlora Driver AI - Production Frontend</title>
+    <link rel="stylesheet" href="astroflora-styles.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iOCIgZmlsbD0iIzY2N2VlYSIvPgo8cGF0aCBkPSJNMTYgMTBMMjAgMTZMMTYgMjJMMTIgMTZMMTYgMTBaIiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4=">
+</head>
+<body>
+    <div class="astroflora-app">
+        <div class="astroflora-container">
+            <!-- Header -->
+            <header class="astroflora-header">
+                <h1>🌱 AstroFlora Driver AI</h1>
+                <p class="subtitle">Sistema Inteligente de Análisis Molecular y Microambientes</p>
+            </header>
+
+            <!-- Status Bar -->
+            <div class="status-bar">
+                <div class="status-indicator">
+                    <div id="status-dot" class="status-dot checking"></div>
+                    <span id="status-text">Verificando conexión...</span>
+                </div>
+                <div class="status-info">
+                    <span id="backend-info">Backend: 3.85.5.222:8001</span>
+                </div>
+            </div>
+
+            <!-- Error/Success Banners -->
+            <div id="error-banner" class="error-banner" style="display: none;">
+                <span class="icon">⚠️</span>
+                <span id="error-text"></span>
+            </div>
+
+            <div id="success-banner" class="success-banner" style="display: none;">
+                <span class="icon">✅</span>
+                <span id="success-text"></span>
+            </div>
+
+            <!-- Main Chat Container -->
+            <div class="chat-container">
+                <!-- Sidebar -->
+                <aside class="chat-sidebar">
+                    <div class="sidebar-section">
+                        <h3 class="sidebar-title">🔧 Herramientas</h3>
+                        <button id="test-connection-btn" class="connection-test-btn">
+                            🔍 Test de Conectividad
+                        </button>
+                        <button id="clear-chat-btn" class="clear-chat-btn">
+                            🗑️ Limpiar Chat
+                        </button>
+                    </div>
+
+                    <div class="sidebar-section">
+                        <h3 class="sidebar-title">📊 Estadísticas</h3>
+                        <div id="stats-container">
+                            <div class="stat-item">
+                                <span class="stat-label">Mensajes:</span>
+                                <span id="message-count">0</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Sesión:</span>
+                                <span id="session-time">00:00</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Último ping:</span>
+                                <span id="last-ping">-</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="sidebar-section">
+                        <h3 class="sidebar-title">ℹ️ Info del Sistema</h3>
+                        <div id="system-info">
+                            <div class="info-item">
+                                <span class="info-label">Versión:</span>
+                                <span>v2.1.0</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Build:</span>
+                                <span>2024.01.15</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Endpoint:</span>
+                                <span id="active-endpoint">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </aside>
+
+                <!-- Main Chat Area -->
+                <main class="chat-main">
+                    <div id="chat-messages" class="chat-messages">
+                        <!-- Welcome Message -->
+                        <div class="message system">
+                            <div class="message-bubble system">
+                                <div class="message-content">
+                                    👋 <strong>¡Bienvenido a AstroFlora Driver AI!</strong><br><br>
+                                    Soy tu asistente inteligente para análisis moleculares y microambientes. Puedo ayudarte con:
+                                    <ul style="margin: 8px 0; padding-left: 20px;">
+                                        <li>🧬 Análisis de estructuras moleculares</li>
+                                        <li>🌱 Evaluación de microambientes</li>
+                                        <li>📊 Interpretación de datos científicos</li>
+                                        <li>🔬 Consultas de bioinformática</li>
+                                    </ul>
+                                    Escribe tu consulta abajo para comenzar.
+                                </div>
+                                <div class="message-meta">
+                                    <span id="welcome-timestamp"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chat Input -->
+                    <div class="chat-input-container">
+                        <div class="chat-input-wrapper">
+                            <textarea 
+                                id="chat-input" 
+                                class="chat-input" 
+                                placeholder="Escribe tu mensaje para AstroFlora Driver AI..."
+                                rows="1"
+                                maxlength="2000"
+                            ></textarea>
+                            <button id="send-button" class="send-button" disabled>
+                                📤
+                            </button>
+                        </div>
+                        <div id="input-counter" class="input-counter" style="font-size: 12px; color: #6b7280; margin-top: 4px; text-align: right;">
+                            0/2000
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="frontend_config.js"></script>
+    <script src="api_service.js"></script>
+    
+    <script>
+        // Variables globales
+        let apiService = null;
+        let messageCount = 0;
+        let sessionStartTime = Date.now();
+
+        // Elementos DOM
+        const statusDot = document.getElementById('status-dot');
+        const statusText = document.getElementById('status-text');
+        const errorBanner = document.getElementById('error-banner');
+        const successBanner = document.getElementById('success-banner');
+        const errorText = document.getElementById('error-text');
+        const successText = document.getElementById('success-text');
+        const chatMessages = document.getElementById('chat-messages');
+        const chatInput = document.getElementById('chat-input');
+        const sendButton = document.getElementById('send-button');
+        const testConnectionBtn = document.getElementById('test-connection-btn');
+        const clearChatBtn = document.getElementById('clear-chat-btn');
+        const messageCountEl = document.getElementById('message-count');
+        const sessionTimeEl = document.getElementById('session-time');
+        const lastPingEl = document.getElementById('last-ping');
+        const activeEndpointEl = document.getElementById('active-endpoint');
+        const inputCounter = document.getElementById('input-counter');
+        const welcomeTimestamp = document.getElementById('welcome-timestamp');
+
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                // Verificar dependencias
+                if (typeof AstrofloraAPI === 'undefined') {
+                    throw new Error('AstrofloraAPI no está disponible');
+                }
+
+                // Inicializar servicio API
+                apiService = new AstrofloraAPI();
+                console.log('✅ AstrofloraAPI inicializado');
+
+                // Configurar timestamp de bienvenida
+                welcomeTimestamp.textContent = new Date().toLocaleTimeString();
+
+                // Verificar conectividad inicial
+                await checkConnection();
+
+                // Configurar event listeners
+                setupEventListeners();
+
+                // Iniciar timers
+                startSessionTimer();
+
+                showSuccess('Sistema inicializado correctamente');
+
+            } catch (error) {
+                console.error('❌ Error de inicialización:', error);
+                showError(`Error de inicialización: ${error.message}`);
+                updateStatus('error', 'Error de inicialización');
+            }
+        });
+
+        // Event Listeners
+        function setupEventListeners() {
+            // Input de chat
+            chatInput.addEventListener('input', handleInputChange);
+            chatInput.addEventListener('keydown', handleKeyDown);
+            
+            // Botón de envío
+            sendButton.addEventListener('click', sendMessage);
+            
+            // Botones de sidebar
+            testConnectionBtn.addEventListener('click', runConnectivityTest);
+            clearChatBtn.addEventListener('click', clearChat);
+
+            // Auto-resize del textarea
+            chatInput.addEventListener('input', autoResizeTextarea);
+        }
+
+        // Manejo de input
+        function handleInputChange() {
+            const value = chatInput.value;
+            const length = value.length;
+            
+            // Actualizar contador
+            inputCounter.textContent = `${length}/2000`;
+            
+            // Habilitar/deshabilitar botón
+            sendButton.disabled = !value.trim() || length === 0;
+        }
+
+        function handleKeyDown(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        }
+
+        function autoResizeTextarea() {
+            chatInput.style.height = 'auto';
+            chatInput.style.height = Math.min(chatInput.scrollHeight, 120) + 'px';
+        }
+
+        // Función para enviar mensaje
+        async function sendMessage() {
+            const message = chatInput.value.trim();
+            if (!message || !apiService) return;
+
+            // Limpiar input
+            chatInput.value = '';
+            handleInputChange();
+            autoResizeTextarea();
+
+            // Mostrar mensaje del usuario
+            addMessage('user', message);
+
+            // Mostrar indicador de typing
+            showTypingIndicator();
+
+            try {
+                // Enviar al backend
+                const response = await apiService.sendMessage(message);
+                
+                // Ocultar typing indicator
+                hideTypingIndicator();
+
+                // Mostrar respuesta
+                addMessage('bot', response.response || 'Sin respuesta', response);
+
+                // Actualizar endpoint activo
+                if (response.endpoint) {
+                    activeEndpointEl.textContent = response.endpoint;
+                }
+
+                // Verificar si hay errores
+                if (response.error || response.originalError) {
+                    showError(`Backend: ${response.originalError || 'Error desconocido'}`);
+                } else {
+                    hideError();
+                }
+
+            } catch (error) {
+                hideTypingIndicator();
+                addMessage('error', `Error: ${error.message}`);
+                showError(`Error de comunicación: ${error.message}`);
+                console.error('❌ Error enviando mensaje:', error);
+            }
+
+            updateMessageCount();
+        }
+
+        // Funciones para manejar mensajes
+        function addMessage(type, content, metadata = {}) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+
+            const bubbleDiv = document.createElement('div');
+            bubbleDiv.className = `message-bubble ${type}`;
+
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+            contentDiv.textContent = content;
+
+            const metaDiv = document.createElement('div');
+            metaDiv.className = 'message-meta';
+            
+            const timestamp = new Date().toLocaleTimeString();
+            let metaContent = `<span>${timestamp}</span>`;
+            
+            if (metadata.endpoint) {
+                metaContent += `<span class="message-endpoint">via ${metadata.endpoint}</span>`;
+            }
+            
+            metaDiv.innerHTML = metaContent;
+
+            bubbleDiv.appendChild(contentDiv);
+            bubbleDiv.appendChild(metaDiv);
+            messageDiv.appendChild(bubbleDiv);
+
+            chatMessages.appendChild(messageDiv);
+            scrollToBottom();
+        }
+
+        function showTypingIndicator() {
+            const typingDiv = document.createElement('div');
+            typingDiv.id = 'typing-indicator';
+            typingDiv.className = 'message bot';
+            typingDiv.innerHTML = `
+                <div class="typing-indicator">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+            `;
+            chatMessages.appendChild(typingDiv);
+            scrollToBottom();
+        }
+
+        function hideTypingIndicator() {
+            const typingIndicator = document.getElementById('typing-indicator');
+            if (typingIndicator) {
+                typingIndicator.remove();
+            }
+        }
+
+        function scrollToBottom() {
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Funciones de conectividad
+        async function checkConnection() {
+            if (!apiService) return;
+
+            updateStatus('checking', 'Verificando conexión...');
+
+            try {
+                const status = await apiService.getConnectionStatus();
+                
+                if (status.isOnline) {
+                    updateStatus('connected', 'Conectado');
+                    updateLastPing();
+                } else {
+                    updateStatus('disconnected', 'Desconectado');
+                    showError('No se pudo conectar con el backend');
+                }
+
+                return status;
+
+            } catch (error) {
+                updateStatus('error', 'Error de conexión');
+                showError(`Error de conectividad: ${error.message}`);
+                return null;
+            }
+        }
+
+        async function runConnectivityTest() {
+            if (!apiService) return;
+
+            testConnectionBtn.textContent = '🔄 Probando...';
+            testConnectionBtn.disabled = true;
+
+            try {
+                const results = await apiService.runConnectivityTest();
+                
+                // Mostrar resultados en el chat
+                const summary = `Test completado: ${results.summary.passed}/${results.summary.total} endpoints OK`;
+                addMessage('system', summary, { timestamp: results.timestamp });
+
+                // Actualizar estado basado en resultados
+                if (results.summary.passed > 0) {
+                    updateStatus('connected', 'Conectado');
+                    showSuccess(`Test exitoso: ${results.summary.passed} endpoints funcionando`);
+                } else {
+                    updateStatus('disconnected', 'Sin conectividad');
+                    showError('Todos los endpoints fallaron en el test');
+                }
+
+                updateLastPing();
+
+            } catch (error) {
+                addMessage('error', `Error en test: ${error.message}`);
+                showError(`Error ejecutando test: ${error.message}`);
+            } finally {
+                testConnectionBtn.textContent = '🔍 Test de Conectividad';
+                testConnectionBtn.disabled = false;
+            }
+        }
+
+        // Funciones de UI
+        function updateStatus(status, text) {
+            statusDot.className = `status-dot ${status}`;
+            statusText.textContent = text;
+        }
+
+        function showError(message) {
+            errorText.textContent = message;
+            errorBanner.style.display = 'flex';
+            successBanner.style.display = 'none';
+        }
+
+        function showSuccess(message) {
+            successText.textContent = message;
+            successBanner.style.display = 'flex';
+            errorBanner.style.display = 'none';
+            
+            // Auto-hide success after 3 seconds
+            setTimeout(() => {
+                successBanner.style.display = 'none';
+            }, 3000);
+        }
+
+        function hideError() {
+            errorBanner.style.display = 'none';
+        }
+
+        function clearChat() {
+            // Limpiar mensajes excepto el de bienvenida
+            const messages = chatMessages.querySelectorAll('.message:not(.system)');
+            messages.forEach(msg => msg.remove());
+            
+            messageCount = 0;
+            updateMessageCount();
+            hideError();
+            
+            showSuccess('Chat limpiado');
+        }
+
+        function updateMessageCount() {
+            messageCount++;
+            messageCountEl.textContent = messageCount;
+        }
+
+        function updateLastPing() {
+            lastPingEl.textContent = new Date().toLocaleTimeString();
+        }
+
+        function startSessionTimer() {
+            setInterval(() => {
+                const elapsed = Date.now() - sessionStartTime;
+                const minutes = Math.floor(elapsed / 60000);
+                const seconds = Math.floor((elapsed % 60000) / 1000);
+                sessionTimeEl.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }, 1000);
+        }
+
+        // Verificación periódica de conectividad
+        setInterval(async () => {
+            if (apiService) {
+                await checkConnection();
+            }
+        }, 30000); // Cada 30 segundos
+    </script>
+</body>
+</html>

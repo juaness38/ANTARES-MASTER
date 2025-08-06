@@ -1,10 +1,10 @@
-import { Activity, Droplet, Wind, Thermometer } from "lucide-react";
+import { Activity, Droplet, Wind, Thermometer, Wifi, WifiOff, Database, TrendingUp, AlertTriangle } from "lucide-react";
 import { motion } from "framer-motion";
 import { useState, useEffect, useRef } from "react";
-import SensorCard from "../../components/sensors/SensorCard";
-import HeaderDashboardHome from "../../components/ui/HeaderDashboardHome";
+import ScientificKPICard from "../../components/ui/ScientificKPICard";
 import ConnectionError from "../../components/ui/ConnectionError";
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
+import "../../styles/scientific.css";
 
 export default function DashboardHome() {
   const [sensorData, setSensorData] = useState({
@@ -221,61 +221,160 @@ export default function DashboardHome() {
     );
 
   return (
-    <div className="min-h-screen p-4 sm:p-6">
-      {/* HeaderDashboardHome  */}
-      <HeaderDashboardHome isConnected={isConnected} />
+    <div className="min-h-screen bg-background scientific-font">
+      {/* Scientific Header */}
+      <motion.div 
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="bg-card scientific-border-b p-6 scientific-shadow"
+      >
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-3">
+                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
+                  <Database className="w-6 h-6 text-primary" />
+                </div>
+                <div>
+                  <h1 className="text-2xl font-bold text-primary">ANTARES AstroFlora</h1>
+                  <p className="text-secondary text-sm">Sistema de Monitoreo Científico en Tiempo Real</p>
+                </div>
+              </div>
+            </div>
+            
+            {/* Connection Status */}
+            <div className="flex items-center space-x-4">
+              <motion.div 
+                className={`flex items-center space-x-2 px-3 py-2 rounded-lg border ${
+                  isConnected 
+                    ? 'bg-green-50 border-green-200 text-green-700' 
+                    : 'bg-red-50 border-red-200 text-red-700'
+                }`}
+                animate={{ scale: isConnected ? 1 : [1, 1.05, 1] }}
+                transition={{ duration: 0.5, repeat: isConnected ? 0 : Infinity, repeatType: "reverse" }}
+              >
+                {isConnected ? (
+                  <Wifi className="w-4 h-4" />
+                ) : (
+                  <WifiOff className="w-4 h-4" />
+                )}
+                <span className="text-sm font-medium">
+                  {isConnected ? 'Conectado' : 'Desconectado'}
+                </span>
+              </motion.div>
+              
+              {/* Overall Status */}
+              <div className={`flex items-center space-x-2 px-3 py-2 rounded-lg border ${
+                sensorData.status === 'ok' 
+                  ? 'bg-green-50 border-green-200 text-green-700'
+                  : sensorData.status === 'warning'
+                  ? 'bg-amber-50 border-amber-200 text-amber-700'
+                  : sensorData.status === 'danger'
+                  ? 'bg-red-50 border-red-200 text-red-700'
+                  : 'bg-gray-50 border-gray-200 text-gray-700'
+              }`}>
+                {sensorData.status === 'danger' && <AlertTriangle className="w-4 h-4" />}
+                {sensorData.status === 'warning' && <TrendingUp className="w-4 h-4" />}
+                <span className="text-sm font-medium">
+                  {sensorData.status === 'ok' ? 'Sistema Normal' : 
+                   sensorData.status === 'warning' ? 'Advertencia' :
+                   sensorData.status === 'danger' ? 'Alerta Crítica' : 'Cargando...'}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </motion.div>
 
-      {/* Main Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6">
-        {/* Temperature Card */}
-        <SensorCard
-          title="Temperatura"
-          value={sensorData.temperature}
-          unit="°C"
-          icon={
-            <Thermometer className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-500" />
-          }
-          location="Sala Principal"
-          type="temperature"
-          statusFn={getSensorStatus}
-          getStatusColorFn={getStatusColor}
-        />
+      {/* Main Dashboard Content */}
+      <div className="max-w-7xl mx-auto p-6 space-y-6">
+        
+        {/* Scientific Grid Layout */}
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.7, delay: 0.2 }}
+          className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6"
+        >
+          {/* Temperature Card */}
+          <ScientificKPICard
+            title="Temperatura Ambiental"
+            value={sensorData.temperature}
+            unit="°C"
+            icon={<Thermometer className="w-6 h-6" />}
+            location="Laboratorio Principal"
+            type="temperature"
+            statusFn={getSensorStatus}
+            getStatusColorFn={getStatusColor}
+            changeType={parseFloat(sensorData.temperature) > 25 ? 'increase' : 'decrease'}
+            change={isConnected ? `${Math.abs(parseFloat(sensorData.temperature || 0) - 22).toFixed(1)}°` : null}
+          />
 
-        {/* Humidity Card */}
-        <SensorCard
-          title="Humedad"
-          value={sensorData.humidity}
-          unit="%"
-          icon={<Droplet className="w-4 h-4 sm:w-5 sm:h-5 text-blue-500" />}
-          location="Sala Principal"
-          type="humidity"
-          statusFn={getSensorStatus}
-          getStatusColorFn={getStatusColor}
-        />
+          {/* Humidity Card */}
+          <ScientificKPICard
+            title="Humedad Relativa"
+            value={sensorData.humidity}
+            unit="%"
+            icon={<Droplet className="w-6 h-6" />}
+            location="Laboratorio Principal"
+            type="humidity"
+            statusFn={getSensorStatus}
+            getStatusColorFn={getStatusColor}
+            changeType={parseFloat(sensorData.humidity) > 50 ? 'increase' : 'decrease'}
+            change={isConnected ? `${Math.abs(parseFloat(sensorData.humidity || 0) - 45).toFixed(1)}%` : null}
+          />
 
-        {/* CO2 Card */}
-        <SensorCard
-          title="CO₂"
-          value={sensorData.co2}
-          unit="ppm"
-          icon={<Wind className="w-4 h-4 sm:w-5 sm:h-5 text-amber-500" />}
-          location="Sala Principal"
-          type="co2"
-          statusFn={getSensorStatus}
-          getStatusColorFn={getStatusColor}
-        />
+          {/* CO2 Card */}
+          <ScientificKPICard
+            title="Dióxido de Carbono"
+            value={sensorData.co2}
+            unit="ppm"
+            icon={<Wind className="w-6 h-6" />}
+            location="Laboratorio Principal"
+            type="co2"
+            statusFn={getSensorStatus}
+            getStatusColorFn={getStatusColor}
+            changeType={parseFloat(sensorData.co2) > 800 ? 'increase' : 'decrease'}
+            change={isConnected ? `${Math.abs(parseFloat(sensorData.co2 || 0) - 400).toFixed(0)}ppm` : null}
+          />
 
-        {/* Pressure Card */}
-        <SensorCard
-          title="Presión"
-          value={sensorData.pressure}
-          unit="hPa"
-          icon={<Activity className="w-4 h-4 sm:w-5 sm:h-5 text-purple-500" />}
-          location="Sala Principal"
-          type="pressure"
-          statusFn={getSensorStatus}
-          getStatusColorFn={getStatusColor}
-        />
+          {/* Pressure Card */}
+          <ScientificKPICard
+            title="Presión Atmosférica"
+            value={sensorData.pressure}
+            unit="hPa"
+            icon={<Activity className="w-6 h-6" />}
+            location="Laboratorio Principal"
+            type="pressure"
+            statusFn={getSensorStatus}
+            getStatusColorFn={getStatusColor}
+            changeType={parseFloat(sensorData.pressure) > 1013 ? 'increase' : 'decrease'}
+            change={isConnected ? `${Math.abs(parseFloat(sensorData.pressure || 0) - 1013).toFixed(1)}hPa` : null}
+          />
+        </motion.div>
+
+        {/* Scientific Footer Information */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+          className="bg-card scientific-border rounded-lg p-4 scientific-shadow"
+        >
+          <div className="flex items-center justify-between text-sm text-secondary">
+            <div className="flex items-center space-x-4">
+              <span>Última actualización: {new Date().toLocaleTimeString('es-ES')}</span>
+              <span>•</span>
+              <span>Protocolo: WebSocket Seguro</span>
+              <span>•</span>
+              <span>Frecuencia: Tiempo Real</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'} scientific-pulse`}></div>
+              <span>Estado: {isConnected ? 'Activo' : 'Inactivo'}</span>
+            </div>
+          </div>
+        </motion.div>
       </div>
     </div>
   );
