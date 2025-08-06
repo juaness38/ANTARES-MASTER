@@ -67,7 +67,7 @@ export default function EliteAstroFloraChat() {
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: `❌ Error: ${error.message || 'No se pudo procesar tu solicitud. Verifica la conexión con el backend.'}`
+        content: `❌ Error: ${error instanceof Error ? error.message : 'No se pudo procesar tu solicitud. Verifica la conexión con el backend.'}`
       }
       setMessages(prev => [...prev, errorMessage])
     } finally {
