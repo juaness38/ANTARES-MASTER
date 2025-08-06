@@ -33,18 +33,77 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* Scrollbars personalizados */
+/* Estilos para evitar problemas de lag en el chat */
+.jarvis-chat-container {
+  height: 100%;
+  position: relative;
+  contain: layout style paint;
+}
+
+.jarvis-chat-container * {
+  outline: none !important;
+  -webkit-tap-highlight-color: transparent !important;
+  -webkit-touch-callout: none !important;
+  -webkit-user-select: none !important;
+  user-select: none !important;
+  box-shadow: none !important;
+}
+
+.jarvis-chat-container input,
+.jarvis-chat-container textarea {
+  -webkit-user-select: text !important;
+  user-select: text !important;
+}
+
+.jarvis-chat-container input:focus,
+.jarvis-chat-container textarea:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.jarvis-messages {
+  scrollbar-width: thin;
+  scrollbar-color: #4F46E5 #1F2937;
+  scroll-behavior: smooth;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Prevenir eventos de cierre involuntario */
+.chat-panel {
+  isolation: isolate;
+  contain: layout style paint;
+  height: 100%;
+}
+
+/* Optimización de rendimiento para dashboard */
+.astroflora-dashboard {
+  contain: layout;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.main-content {
+  contain: layout style;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Scrollbars personalizados - Simplificados */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
   background: #1F2937;
+  border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #00D4FF, #A855F7);
-  border-radius: 4px;
+  background: #4F46E5;
+  border-radius: 3px;
+  border: none;
 }
 
 ::-webkit-scrollbar-thumb:hover {

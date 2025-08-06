@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server'
 import { streamText } from 'ai'
 import { openai } from '@ai-sdk/openai'
 
-// URL del backend de Astroflora
+// URL del backend de Astroflora - CONFIGURACIÓN REAL VERIFICADA ✅
 const ASTROFLORA_BACKEND_URL = process.env.ASTROFLORA_BACKEND_URL || 'https://qmoyxt3015.execute-api.us-east-1.amazonaws.com/dev'
 const DIRECT_BACKEND_URL = process.env.DIRECT_BACKEND_URL || 'http://3.85.5.222:8001'
 
@@ -71,14 +71,22 @@ async function queryAstrofloraBackend(query: string) {
       return data
     }
     
-    // Si falla, intentar con el backend directo
-    console.log('⚠️ API Gateway falló, intentando backend directo...')
-    const directResponse = await fetch(`${DIRECT_BACKEND_URL}/analyze`, {
+    // Si falla, intentar con el backend directo (Driver AI) - ENDPOINT REAL ✅
+    console.log('⚠️ API Gateway falló, intentando Driver AI directo...')
+    const directResponse = await fetch(`${DIRECT_BACKEND_URL}/api/mayahuelin/analyze`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ query }),
+      body: JSON.stringify({ 
+        query: query,
+        context: {
+          user_id: 'frontend_user',
+          session_id: `session_${Date.now()}`,
+          domain: 'scientific_analysis',
+          analysis_type: 'driver_ai_query'
+        }
+      }),
       signal: AbortSignal.timeout(10000)
     })
     
