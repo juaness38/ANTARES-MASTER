@@ -1,11 +1,16 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
+import chatService from '../../src/services/chatService.js'
 
 interface Message {
   id: string
   role: 'user' | 'assistant'
   content: string
+  metadata?: {
+    model_used?: string
+    confidence?: number
+  }
 }
 
 export default function SimpleChatInterface() {
@@ -52,65 +57,23 @@ export default function SimpleChatInterface() {
     console.log('📤 Enviando mensaje:', currentInput)
 
     try {
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          messages: [
-            ...messages.map(msg => ({
-              role: msg.role,
-              content: msg.content
-            })),
-            {
-              role: 'user',
-              content: currentInput
-            }
-          ]
-        }),
-      })
-
-      if (!response.ok) {
-        throw new Error(`Error ${response.status}: ${response.statusText}`)
-      }
-
-      // Crear mensaje del asistente
-      let assistantMessage: Message = {
+      // 🚀 USAR EL NUEVO CHAT SERVICE
+      const response = await chatService.processMessage(currentInput)
+      
+      const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: ''
+        content: response.response,
+        metadata: {
+          model_used: response.model_used,
+          confidence: response.confidence
+        }
       }
 
       setMessages(prev => [...prev, assistantMessage])
-
-      // Leer el stream de respuesta
-      const reader = response.body?.getReader()
-      const decoder = new TextDecoder()
-
-      if (reader) {
-        try {
-          while (true) {
-            const { done, value } = await reader.read()
-            if (done) break
-
-            const chunk = decoder.decode(value, { stream: true })
-            assistantMessage.content += chunk
-            
-            setMessages(prev => 
-              prev.map(msg => 
-                msg.id === assistantMessage.id 
-                  ? { ...msg, content: assistantMessage.content }
-                  : msg
-              )
-            )
-          }
-        } finally {
-          reader.releaseLock()
-        }
-      }
+      
     } catch (error) {
-      console.error('Error en el chat:', error)
+      console.error('❌ Error en el chat:', error)
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',

@@ -1,11 +1,17 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
+import chatService from '../../src/services/chatService.js'
 
 interface Message {
   id: string
   role: 'user' | 'assistant'
   content: string
+  metadata?: {
+    model_used?: string
+    confidence?: number
+    timestamp?: string
+  }
 }
 
 export default function EliteAstroFloraChat() {
@@ -38,71 +44,30 @@ export default function EliteAstroFloraChat() {
     setIsLoading(true)
 
     try {
-      // Llamada a nuestra API que maneja ChatGPT
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          messages: [
-            ...messages.map(msg => ({
-              role: msg.role,
-              content: msg.content
-            })),
-            {
-              role: 'user',
-              content: currentInput
-            }
-          ]
-        }),
-      })
-
-      if (!response.ok) {
-        throw new Error(`Error ${response.status}: ${response.statusText}`)
-      }
-
-      // Manejo de streaming response
-      const reader = response.body?.getReader()
-      const decoder = new TextDecoder()
+      // 🚀 USAR EL NUEVO CHAT SERVICE
+      console.log('🤖 Procesando mensaje con Astroflora AI:', currentInput)
       
-      let assistantMessage: Message = {
+      const response = await chatService.processMessage(currentInput)
+      
+      const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: ''
+        content: response.response,
+        metadata: {
+          model_used: response.model_used,
+          confidence: response.confidence,
+          timestamp: response.timestamp
+        }
       }
 
       setMessages(prev => [...prev, assistantMessage])
-
-      if (reader) {
-        while (true) {
-          const { done, value } = await reader.read()
-          if (done) break
-
-          const chunk = decoder.decode(value)
-          const lines = chunk.split('\n')
-
-          for (const line of lines) {
-            if (line.startsWith('0:')) {
-              const data = line.slice(2)
-              assistantMessage.content += data
-              setMessages(prev => 
-                prev.map(msg => 
-                  msg.id === assistantMessage.id 
-                    ? { ...msg, content: assistantMessage.content }
-                    : msg
-                )
-              )
-            }
-          }
-        }
-      }
+      
     } catch (error) {
-      console.error('Error:', error)
+      console.error('❌ Error en chat:', error)
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: '❌ Lo siento, hubo un error al procesar tu solicitud. Verifica tu conexión y la configuración de la API key.'
+        content: `❌ Error: ${error.message || 'No se pudo procesar tu solicitud. Verifica la conexión con el backend.'}`
       }
       setMessages(prev => [...prev, errorMessage])
     } finally {
